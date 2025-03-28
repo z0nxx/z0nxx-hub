@@ -24,13 +24,11 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/re
 -- Ждем 7 секунд
 wait(7)
 
--- Добавляем проверку использования скрипта
+-- Локальная таблица пользователей скрипта
 local scriptUsers = {}
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-
--- Регистрируем текущего пользователя скрипта
-scriptUsers[LocalPlayer.Name] = true
+scriptUsers[LocalPlayer.Name] = true -- Регистрируем текущего пользователя
 
 -- Функция для проверки, является ли игрок админом
 local function isAdmin(player)
@@ -39,7 +37,7 @@ end
 
 -- Создаем основной интерфейс (ScreenGui)
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+screenGui.Parent = LocalPlayer.PlayerGui
 screenGui.ResetOnSpawn = false
 
 -- Основной контейнер GUI
@@ -257,7 +255,7 @@ sliderLabel.Parent = feScriptsFrame
 
 spawn(function()
     local wait = task.wait
-    local player = game:GetService("Players").LocalPlayer
+    local player = LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
 
     while wait() do
@@ -367,7 +365,7 @@ local scrollButtons = {}
 local scrollButtonHeight = 40
 local scrollSpacing = 10
 local totalButtons = 25
-local player = game.Players.LocalPlayer
+local player = LocalPlayer
 
 for i = 1, totalButtons do
     local scrollButton = Instance.new("TextButton")
@@ -506,7 +504,7 @@ teleportButton.MouseLeave:Connect(function()
 end)
 
 local function findPlayer(partialName)
-    local players = game:GetService("Players"):GetPlayers()
+    local players = Players:GetPlayers()
     for _, player in ipairs(players) do
         if string.find(string.lower(player.Name), string.lower(partialName)) then
             return player
@@ -531,7 +529,7 @@ local function updatePlayerInfo()
             local isInGame = foundPlayer.Character and "Да" or "Нет"
 
             local success, thumbnail = pcall(function()
-                return game:GetService("Players"):GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+                return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
             end)
             if success then
                 avatarImage.Image = thumbnail
@@ -562,16 +560,15 @@ searchBox:GetPropertyChangedSignal("Text"):Connect(updatePlayerInfo)
 
 teleportButton.MouseButton1Click:Connect(function()
     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local localPlayer = game.Players.LocalPlayer
-        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            localPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
         end
     else
         playerInfo.Text = "Ошибка: Игрок не в игре или недоступен для телепортации."
     end
 end)
 
--- Добавляем админ-панель
+-- Добавляем админ-панель (локальная версия)
 if isAdmin(LocalPlayer) then
     local adminFrame = contentFrames[5]
     
@@ -646,15 +643,21 @@ if isAdmin(LocalPlayer) then
         userScroll.CanvasSize = UDim2.new(0, 0, 0, yOffset)
     end
     
-    Players.PlayerAdded:Connect(function(player)
+    -- Обновляем список при открытии админ-панели
+    buttons[5].MouseButton1Click:Connect(function()
         updateUserList()
     end)
     
+    -- Обновление при добавлении/удалении игрока (локально)
+    Players.PlayerAdded:Connect(function(player)
+        updateUserList()
+    end)
     Players.PlayerRemoving:Connect(function(player)
         scriptUsers[player.Name] = nil
         updateUserList()
     end)
     
+    -- Инициализация списка
     updateUserList()
 end
 
