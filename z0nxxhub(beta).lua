@@ -24,26 +24,20 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/re
 -- Ждем 7 секунд
 wait(7)
 
--- Локальная таблица пользователей скрипта
-local scriptUsers = {}
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-scriptUsers[LocalPlayer.Name] = true -- Регистрируем текущего пользователя
-
--- Функция для проверки, является ли игрок админом
-local function isAdmin(player)
-    return player.Name == "crendel223"
-end
+-- Проверка типа устройства
+local userInputService = game:GetService("UserInputService")
+local isMobile = userInputService.TouchEnabled and not userInputService.KeyboardEnabled
 
 -- Создаем основной интерфейс (ScreenGui)
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = LocalPlayer.PlayerGui
-screenGui.ResetOnSpawn = false
+screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+screenGui.ResetOnSpawn = false -- Сохраняем GUI после респавна
 
--- Основной контейнер GUI
+-- Основной контейнер GUI с адаптацией размера
+local mainFrameSize = isMobile and UDim2.new(0, 400, 0, 300) or UDim2.new(0, 650, 0, 450)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 600, 0, 400)
-mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+mainFrame.Size = mainFrameSize
+mainFrame.Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)
 mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
@@ -111,23 +105,17 @@ end
 -- Создаем вкладки и их содержимое
 local buttons = {}
 local contentFrames = {}
-local tabCount = isAdmin(LocalPlayer) and 5 or 4
-for i = 1, tabCount do
+for i = 1, 4 do
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 140, 0, 40)
-    button.Position = UDim2.new(0, 10 + (i-1)*145, 0, 10)
+    button.Size = isMobile and UDim2.new(0, 90, 0, 30) or UDim2.new(0, 150, 0, 40)
+    button.Position = UDim2.new(0, 10 + (i-1)*(isMobile and 95 or 155), 0, 10)
     button.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
     button.TextColor3 = Color3.fromRGB(200, 200, 200)
-    button.Text = i == 1 and "About Creator" or 
-                 i == 2 and "FE Scripts" or 
-                 i == 3 and "Телепорты" or 
-                 i == 4 and "Player Finder" or 
-                 "Admin Panel"
+    button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or "Player Finder"
     button.Font = Enum.Font.SourceSansSemibold
-    button.TextSize = 18
+    button.TextSize = isMobile and 14 or 18
     button.BorderSizePixel = 0
     button.Parent = dragBar
-    button.Visible = (i <= 4) or isAdmin(LocalPlayer)
     addClickSound(button)
     
     local btnCorner = Instance.new("UICorner")
@@ -142,7 +130,7 @@ for i = 1, tabCount do
     end)
     
     local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -20, 0, 350)
+    contentFrame.Size = UDim2.new(1, -20, 0, isMobile and 230 or 380)
     contentFrame.Position = UDim2.new(0, 10, 0, 60)
     contentFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
     contentFrame.BorderSizePixel = 0
@@ -160,39 +148,77 @@ end
 -- Содержимое вкладки "About Creator"
 local creatorFrame = contentFrames[1]
 local profileImage = Instance.new("ImageLabel")
-profileImage.Size = UDim2.new(0, 150, 0, 150)
+profileImage.Size = isMobile and UDim2.new(0, 100, 0, 100) or UDim2.new(0, 180, 0, 180)
 profileImage.Position = UDim2.new(0, 20, 0, 20)
-profileImage.BackgroundTransparency = 1
-profileImage.Image = "rbxassetid://0"
+profileImage.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+local userId = 2316299341 -- UserId для crendel223
+local success, thumbnail = pcall(function()
+    return game:GetService("Players"):GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size100x100 or Enum.ThumbnailSize.Size180x180)
+end)
+if success then
+    profileImage.Image = thumbnail
+else
+    profileImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+end
 profileImage.Parent = creatorFrame
 
 local imageCorner = Instance.new("UICorner")
 imageCorner.CornerRadius = UDim.new(0, 10)
 imageCorner.Parent = profileImage
 
+local imageStroke = Instance.new("UIStroke")
+imageStroke.Thickness = 2
+imageStroke.Color = Color3.fromRGB(147, 112, 219)
+imageStroke.Parent = profileImage
+
 local creatorInfo = Instance.new("TextLabel")
-creatorInfo.Size = UDim2.new(0, 380, 0, 290)
-creatorInfo.Position = UDim2.new(0, 190, 0, 20)
-creatorInfo.BackgroundTransparency = 1
+creatorInfo.Size = isMobile and UDim2.new(0, 240, 0, 190) or UDim2.new(0, 400, 0, 340)
+creatorInfo.Position = UDim2.new(0, isMobile and 130 or 220, 0, 20)
+creatorInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
 creatorInfo.TextColor3 = Color3.fromRGB(220, 220, 220)
 creatorInfo.Font = Enum.Font.SourceSans
-creatorInfo.TextSize = 18
+creatorInfo.TextSize = isMobile and 14 or 18
 creatorInfo.TextWrapped = true
 creatorInfo.TextXAlignment = Enum.TextXAlignment.Left
 creatorInfo.Text = [[
-Creator: z0nxx
-Script Creation Date: 23 марта 2025
-Description: Привет! Я z0nxx, создатель данного скрипта!
-Profile Link: https://www.roblox.com/users/2316299341/profile
+<font size="24" face="SourceSansBold"><b>z0nxx</b></font>
+<font color="#9370DB">Создатель скрипта</font>
+
+<font size="16" color="#9370DB"><b>Информация:</b></font>
+• Дата создания: 23 марта 2025
+• Версия скрипта: 2.0
+• Опыт работы: 3 года
+
+<font size="16" color="#9370DB"><b>Контакты:</b></font>
+• Discord: z0nxx
+• Roblox профиль: 
+  <font color="#4b9bff">https://www.roblox.com/users/2316299341/profile</font>
+
+<font size="16" color="#9370DB"><b>О скрипте:</b></font>
+Этот скрипт создан для удобства игры в Roblox. 
+Он включает в себя множество полезных функций, 
+таких как FE скрипты, телепорты и поиск игроков.
+
+<font color="#9370DB">Спасибо за использование моего скрипта!</font>
 ]]
+creatorInfo.RichText = true
 creatorInfo.Parent = creatorFrame
+
+local infoCorner = Instance.new("UICorner")
+infoCorner.CornerRadius = UDim.new(0, 10)
+infoCorner.Parent = creatorInfo
+
+local infoPadding = Instance.new("UIPadding")
+infoPadding.PaddingLeft = UDim.new(0, 15)
+infoPadding.PaddingTop = UDim.new(0, 15)
+infoPadding.Parent = creatorInfo
 
 -- Содержимое вкладки "FE Scripts"
 local feScriptsFrame = contentFrames[2]
 
 local sliderFrame = Instance.new("Frame")
-sliderFrame.Size = UDim2.new(0, 400, 0, 20)
-sliderFrame.Position = UDim2.new(0, 90, 0, 20)
+sliderFrame.Size = isMobile and UDim2.new(0, 300, 0, 20) or UDim2.new(0, 450, 0, 25)
+sliderFrame.Position = UDim2.new(0.5, -sliderFrame.Size.X.Offset / 2, 0, 20)
 sliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
 sliderFrame.Parent = feScriptsFrame
 
@@ -201,8 +227,8 @@ sliderCorner.CornerRadius = UDim.new(0, 10)
 sliderCorner.Parent = sliderFrame
 
 local slider = Instance.new("TextButton")
-slider.Size = UDim2.new(0, 40, 0, 20)
-slider.Position = UDim2.new(0, 180, 0, 0)
+slider.Size = UDim2.new(0, isMobile and 30 or 40, 0, isMobile and 20 or 25)
+slider.Position = UDim2.new(0, isMobile and 135 or 205, 0, 0)
 slider.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
 slider.Text = ""
 slider.BorderSizePixel = 0
@@ -244,18 +270,34 @@ slider.InputEnded:Connect(function(input)
 end)
 
 local sliderLabel = Instance.new("TextLabel")
-sliderLabel.Size = UDim2.new(0, 80, 0, 20)
-sliderLabel.Position = UDim2.new(0, 0, 0, 20)
-sliderLabel.Text = "Speed:"
+sliderLabel.Size = UDim2.new(0, isMobile and 80 or 100, 0, isMobile and 20 or 25)
+sliderLabel.Position = UDim2.new(0, 20, 0, 20)
+sliderLabel.Text = "Скорость анимаций:"
 sliderLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
 sliderLabel.BackgroundTransparency = 1
-sliderLabel.Font = Enum.Font.SourceSans
-sliderLabel.TextSize = 18
+sliderLabel.Font = Enum.Font.SourceSansSemibold
+sliderLabel.TextSize = isMobile and 14 or 16
 sliderLabel.Parent = feScriptsFrame
+
+local valueLabel = Instance.new("TextLabel")
+valueLabel.Size = UDim2.new(0, 50, 0, isMobile and 20 or 25)
+valueLabel.Position = UDim2.new(0, isMobile and 330 or 580, 0, 20)
+valueLabel.Text = tostring(sliderValue)
+valueLabel.TextColor3 = Color3.fromRGB(147, 112, 219)
+valueLabel.BackgroundTransparency = 1
+valueLabel.Font = Enum.Font.SourceSansSemibold
+valueLabel.TextSize = isMobile and 14 or 16
+valueLabel.Parent = feScriptsFrame
+
+spawn(function()
+    while wait(0.1) do
+        valueLabel.Text = string.format("%.1f", sliderValue)
+    end
+end)
 
 spawn(function()
     local wait = task.wait
-    local player = LocalPlayer
+    local player = game:GetService("Players").LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
 
     while wait() do
@@ -271,12 +313,12 @@ end)
 
 -- Кнопки для FE Scripts
 local feButtons = {}
-local buttonWidth = 260
-local buttonHeight = 50
-local spacingX = 20
-local spacingY = 20
+local buttonWidth = isMobile and 180 or 280
+local buttonHeight = isMobile and 40 or 50
+local spacingX = isMobile and 10 or 20
+local spacingY = isMobile and 10 or 15
 local startX = 20
-local startY = 60
+local startY = isMobile and 50 or 60
 
 for i = 1, 8 do
     local feButton = Instance.new("TextButton")
@@ -333,7 +375,7 @@ for i = 1, 8 do
     end
     
     feButton.Font = Enum.Font.SourceSansSemibold
-    feButton.TextSize = 18
+    feButton.TextSize = isMobile and 14 or 18
     feButton.BorderSizePixel = 0
     feButton.Parent = feScriptsFrame
     addClickSound(feButton)
@@ -342,11 +384,18 @@ for i = 1, 8 do
     feCorner.CornerRadius = UDim.new(0, 8)
     feCorner.Parent = feButton
     
+    local feStroke = Instance.new("UIStroke")
+    feStroke.Thickness = 1
+    feStroke.Color = Color3.fromRGB(25, 25, 30)
+    feStroke.Parent = feButton
+    
     feButton.MouseEnter:Connect(function()
         feButton.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
+        feButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     end)
     feButton.MouseLeave:Connect(function()
         feButton.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+        feButton.TextColor3 = Color3.fromRGB(200, 200, 200)
     end)
     
     table.insert(feButtons, feButton)
@@ -362,10 +411,10 @@ scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(147, 112, 219)
 scrollFrame.Parent = contentFrames[3]
 
 local scrollButtons = {}
-local scrollButtonHeight = 40
-local scrollSpacing = 10
+local scrollButtonHeight = isMobile and 30 or 40
+local scrollSpacing = isMobile and 5 or 10
 local totalButtons = 25
-local player = LocalPlayer
+local player = game.Players.LocalPlayer
 
 for i = 1, totalButtons do
     local scrollButton = Instance.new("TextButton")
@@ -396,11 +445,11 @@ for i = 1, totalButtons do
             end
         end)
     else
-        scrollButton.Text = "Button " .. i
+        scrollButton.Text = "Место " .. i
     end
     
     scrollButton.Font = Enum.Font.SourceSansSemibold
-    scrollButton.TextSize = 18
+    scrollButton.TextSize = isMobile and 14 or 18
     scrollButton.BorderSizePixel = 0
     scrollButton.Parent = scrollFrame
     addClickSound(scrollButton)
@@ -409,11 +458,18 @@ for i = 1, totalButtons do
     scrollCorner.CornerRadius = UDim.new(0, 8)
     scrollCorner.Parent = scrollButton
     
+    local scrollStroke = Instance.new("UIStroke")
+    scrollStroke.Thickness = 1
+    scrollStroke.Color = Color3.fromRGB(25, 25, 30)
+    scrollStroke.Parent = scrollButton
+    
     scrollButton.MouseEnter:Connect(function()
         scrollButton.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
+        scrollButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     end)
     scrollButton.MouseLeave:Connect(function()
         scrollButton.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+        scrollButton.TextColor3 = Color3.fromRGB(200, 200, 200)
     end)
     
     table.insert(scrollButtons, scrollButton)
@@ -424,72 +480,103 @@ scrollFrame.CanvasSize = UDim2.new(0, 0, 0, totalButtons * (scrollButtonHeight +
 -- Содержимое вкладки "Player Finder"
 local playerFinderFrame = contentFrames[4]
 
-local searchBox = Instance.new("TextBox")
-searchBox.Size = UDim2.new(0, 400, 0, 40)
-searchBox.Position = UDim2.new(0, 90, 0, 20)
-searchBox.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-searchBox.TextColor3 = Color3.fromRGB(200, 200, 200)
-searchBox.PlaceholderText = "Введите ник игрока..."
-searchBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-searchBox.Font = Enum.Font.SourceSansSemibold
-searchBox.TextSize = 18
-searchBox.BorderSizePixel = 0
-searchBox.ClearTextOnFocus = false
-searchBox.Parent = playerFinderFrame
+-- Левая панель - список игроков
+local playerListFrame = Instance.new("Frame")
+playerListFrame.Size = isMobile and UDim2.new(0, 120, 1, -20) or UDim2.new(0, 200, 1, -20)
+playerListFrame.Position = UDim2.new(0, 10, 0, 10)
+playerListFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+playerListFrame.Parent = playerFinderFrame
 
-local searchCorner = Instance.new("UICorner")
-searchCorner.CornerRadius = UDim.new(0, 8)
-searchCorner.Parent = searchBox
+local playerListCorner = Instance.new("UICorner")
+playerListCorner.CornerRadius = UDim.new(0, 8)
+playerListCorner.Parent = playerListFrame
 
-local searchLabel = Instance.new("TextLabel")
-searchLabel.Size = UDim2.new(0, 80, 0, 40)
-searchLabel.Position = UDim2.new(0, 0, 0, 20)
-searchLabel.Text = "Поиск:"
-searchLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-searchLabel.BackgroundTransparency = 1
-searchLabel.Font = Enum.Font.SourceSans
-searchLabel.TextSize = 18
-searchLabel.Parent = playerFinderFrame
+local playerListTitle = Instance.new("TextLabel")
+playerListTitle.Size = UDim2.new(1, 0, 0, isMobile and 30 or 40)
+playerListTitle.Position = UDim2.new(0, 0, 0, 0)
+playerListTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+playerListTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
+playerListTitle.Text = "Игроки в игре"
+playerListTitle.Font = Enum.Font.SourceSansSemibold
+playerListTitle.TextSize = isMobile and 14 or 18
+playerListTitle.Parent = playerListFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 8)
+titleCorner.Parent = playerListTitle
+
+local playerListScroll = Instance.new("ScrollingFrame")
+playerListScroll.Size = UDim2.new(1, 0, 1, isMobile and -40 or -50)
+playerListScroll.Position = UDim2.new(0, 0, 0, isMobile and 30 or 40)
+playerListScroll.BackgroundTransparency = 1
+playerListScroll.ScrollBarThickness = 6
+playerListScroll.ScrollBarImageColor3 = Color3.fromRGB(147, 112, 219)
+playerListScroll.Parent = playerListFrame
+
+local playerListLayout = Instance.new("UIListLayout")
+playerListLayout.Padding = UDim.new(0, 5)
+playerListLayout.Parent = playerListScroll
+
+-- Правая панель - информация об игроке
+local playerInfoFrame = Instance.new("Frame")
+playerInfoFrame.Size = isMobile and UDim2.new(0, 250, 1, -20) or UDim2.new(0, 400, 1, -20)
+playerInfoFrame.Position = UDim2.new(0, isMobile and 140 or 220, 0, 10)
+playerInfoFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+playerInfoFrame.Parent = playerFinderFrame
+
+local playerInfoCorner = Instance.new("UICorner")
+playerInfoCorner.CornerRadius = UDim.new(0, 8)
+playerInfoCorner.Parent = playerInfoFrame
 
 local avatarImage = Instance.new("ImageLabel")
-avatarImage.Size = UDim2.new(0, 150, 0, 150)
-avatarImage.Position = UDim2.new(0, 20, 0, 70)
-avatarImage.BackgroundTransparency = 1
+avatarImage.Size = isMobile and UDim2.new(0, 100, 0, 100) or UDim2.new(0, 150, 0, 150)
+avatarImage.Position = UDim2.new(0.5, -avatarImage.Size.X.Offset / 2, 0, 20)
+avatarImage.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-avatarImage.Parent = playerFinderFrame
+avatarImage.Parent = playerInfoFrame
 
 local avatarCorner = Instance.new("UICorner")
 avatarCorner.CornerRadius = UDim.new(0, 10)
 avatarCorner.Parent = avatarImage
 
+local avatarStroke = Instance.new("UIStroke")
+avatarStroke.Thickness = 2
+avatarStroke.Color = Color3.fromRGB(147, 112, 219)
+avatarStroke.Parent = avatarImage
+
 local playerInfo = Instance.new("TextLabel")
-playerInfo.Size = UDim2.new(0, 380, 0, 200)
-playerInfo.Position = UDim2.new(0, 190, 0, 70)
-playerInfo.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+playerInfo.Size = isMobile and UDim2.new(0, 230, 0, 100) or UDim2.new(0, 380, 0, 180)
+playerInfo.Position = UDim2.new(0, 10, 0, isMobile and 130 or 190)
+playerInfo.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 playerInfo.TextColor3 = Color3.fromRGB(220, 220, 220)
 playerInfo.Font = Enum.Font.SourceSans
-playerInfo.TextSize = 16
+playerInfo.TextSize = isMobile and 12 or 16
 playerInfo.TextWrapped = true
 playerInfo.TextXAlignment = Enum.TextXAlignment.Left
 playerInfo.TextYAlignment = Enum.TextYAlignment.Top
-playerInfo.Text = "Информация появится здесь после поиска."
-playerInfo.Parent = playerFinderFrame
+playerInfo.Text = "Выберите игрока из списка для просмотра информации."
+playerInfo.Parent = playerInfoFrame
 
 local infoCorner = Instance.new("UICorner")
 infoCorner.CornerRadius = UDim.new(0, 8)
 infoCorner.Parent = playerInfo
 
+local infoPadding = Instance.new("UIPadding")
+infoPadding.PaddingLeft = UDim.new(0, 10)
+infoPadding.PaddingTop = UDim.new(0, 10)
+infoPadding.Parent = playerInfo
+
 local teleportButton = Instance.new("TextButton")
-teleportButton.Size = UDim2.new(0, 200, 0, 50)
-teleportButton.Position = UDim2.new(0.5, -100, 0, 290)
+teleportButton.Size = isMobile and UDim2.new(0, 120, 0, 30) or UDim2.new(0, 200, 0, 40)
+teleportButton.Position = UDim2.new(0.5, -teleportButton.Size.X.Offset / 2, 1, isMobile and -40 or -60)
 teleportButton.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
 teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 teleportButton.Text = "Телепортироваться"
 teleportButton.Font = Enum.Font.SourceSansBold
-teleportButton.TextSize = 20
+teleportButton.TextSize = isMobile and 14 or 18
 teleportButton.BorderSizePixel = 0
 teleportButton.Visible = false
-teleportButton.Parent = playerFinderFrame
+teleportButton.Parent = playerInfoFrame
 addClickSound(teleportButton)
 
 local teleportCorner = Instance.new("UICorner")
@@ -503,33 +590,64 @@ teleportButton.MouseLeave:Connect(function()
     teleportButton.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
 end)
 
-local function findPlayer(partialName)
-    local players = Players:GetPlayers()
-    for _, player in ipairs(players) do
-        if string.find(string.lower(player.Name), string.lower(partialName)) then
-            return player
+-- Функция для обновления списка игроков
+local selectedPlayer = nil
+
+teleportButton.MouseButton1Click:Connect(function()
+    if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local localPlayer = game.Players.LocalPlayer
+        if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            localPlayer.Character.HumanoidRootPart.CFrame = selectedPlayer.Character.HumanoidRootPart.CFrame
+            playerInfo.Text = playerInfo.Text .. "\n\n<font color='#4b9bff'>Успешно телепортирован к игроку!</font>"
+        end
+    else
+        playerInfo.Text = playerInfo.Text .. "\n\n<font color='#ff5555'>Ошибка: Игрок не в игре!</font>"
+    end
+end)
+
+local function updatePlayerList()
+    for _, child in ipairs(playerListScroll:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
         end
     end
-    return nil
-end
-
-local targetPlayer = nil
-
-local function updatePlayerInfo()
-    local inputText = searchBox.Text
-    if inputText ~= "" then
-        local foundPlayer = findPlayer(inputText)
-        if foundPlayer then
-            targetPlayer = foundPlayer
-            local userId = foundPlayer.UserId
-            local creationDate = foundPlayer.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - foundPlayer.AccountAge * 86400) or "Неизвестно"
-            local displayName = foundPlayer.DisplayName
-            local username = foundPlayer.Name
-            local team = foundPlayer.Team and foundPlayer.Team.Name or "Нет команды"
-            local isInGame = foundPlayer.Character and "Да" or "Нет"
+    
+    local players = game:GetService("Players"):GetPlayers()
+    for i, player in ipairs(players) do
+        local playerButton = Instance.new("TextButton")
+        playerButton.Size = UDim2.new(1, -10, 0, isMobile and 30 or 40)
+        playerButton.Position = UDim2.new(0, 5, 0, (i-1)*(isMobile and 35 or 45))
+        playerButton.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+        playerButton.TextColor3 = Color3.fromRGB(220, 220, 220)
+        playerButton.Text = player.Name
+        playerButton.Font = Enum.Font.SourceSansSemibold
+        playerButton.TextSize = isMobile and 12 or 16
+        playerButton.BorderSizePixel = 0
+        playerButton.Parent = playerListScroll -- Исправлено с ParentIt на Parent
+        addClickSound(playerButton)
+        
+        local buttonCorner = Instance.new("UICorner")
+        buttonCorner.CornerRadius = UDim.new(0, 6)
+        buttonCorner.Parent = playerButton
+        
+        playerButton.MouseEnter:Connect(function()
+            playerButton.BackgroundColor3 = Color3.fromRGB(60, 60, 65)
+        end)
+        playerButton.MouseLeave:Connect(function()
+            playerButton.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
+        end)
+        
+        playerButton.MouseButton1Click:Connect(function()
+            selectedPlayer = player
+            local userId = player.UserId
+            local creationDate = player.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - player.AccountAge * 86400) or "Неизвестно"
+            local displayName = player.DisplayName
+            local username = player.Name
+            local team = player.Team and player.Team.Name or "Нет команды"
+            local isInGame = player.Character and "Да" or "Нет"
 
             local success, thumbnail = pcall(function()
-                return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+                return game:GetService("Players"):GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size100x100 or Enum.ThumbnailSize.Size150x150)
             end)
             if success then
                 avatarImage.Image = thumbnail
@@ -538,128 +656,25 @@ local function updatePlayerInfo()
             end
 
             playerInfo.Text = string.format(
-                "Имя: %s\nНикнейм: %s\nUserID: %d\nДата создания аккаунта: %s\nКоманда: %s\nВ игре: %s",
-                displayName, username, userId, creationDate, team, isInGame
+                "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#9370DB'>@%s</font>\n\n"..
+                "<font color='#9370DB'>UserID:</font> %d\n"..
+                "<font color='#9370DB'>Дата создания:</font> %s\n"..
+                "<font color='#9370DB'>Команда:</font> %s\n"..
+                "<font color='#9370DB'>В игре:</font> %s",
+                isMobile and 16 or 18, displayName, username, userId, creationDate, team, isInGame
             )
+            playerInfo.RichText = true
             teleportButton.Visible = true
-        else
-            playerInfo.Text = "Игрок с таким ником не найден."
-            avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-            teleportButton.Visible = false
-            targetPlayer = nil
-        end
-    else
-        playerInfo.Text = "Введите ник игрока для поиска."
-        avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-        teleportButton.Visible = false
-        targetPlayer = nil
+        end)
     end
+    
+    playerListScroll.CanvasSize = UDim2.new(0, 0, 0, #players * (isMobile and 35 or 45))
 end
 
-searchBox:GetPropertyChangedSignal("Text"):Connect(updatePlayerInfo)
-
-teleportButton.MouseButton1Click:Connect(function()
-    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
-        end
-    else
-        playerInfo.Text = "Ошибка: Игрок не в игре или недоступен для телепортации."
-    end
-end)
-
--- Добавляем админ-панель (локальная версия)
-if isAdmin(LocalPlayer) then
-    local adminFrame = contentFrames[5]
-    
-    local userScroll = Instance.new("ScrollingFrame")
-    userScroll.Size = UDim2.new(1, -20, 1, -20)
-    userScroll.Position = UDim2.new(0, 10, 0, 10)
-    userScroll.BackgroundTransparency = 1
-    userScroll.ScrollBarThickness = 8
-    userScroll.ScrollBarImageColor3 = Color3.fromRGB(147, 112, 219)
-    userScroll.Parent = adminFrame
-    
-    local userList = {}
-    local userHeight = 60
-    local userSpacing = 10
-    
-    local function updateUserList()
-        for _, item in pairs(userList) do
-            item:Destroy()
-        end
-        userList = {}
-        
-        local yOffset = 0
-        for userName, _ in pairs(scriptUsers) do
-            local player = Players:FindFirstChild(userName)
-            if player then
-                local userFrame = Instance.new("Frame")
-                userFrame.Size = UDim2.new(1, -20, 0, userHeight)
-                userFrame.Position = UDim2.new(0, 10, 0, yOffset)
-                userFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-                userFrame.BorderSizePixel = 0
-                userFrame.Parent = userScroll
-                
-                local userCorner = Instance.new("UICorner")
-                userCorner.CornerRadius = UDim.new(0, 8)
-                userCorner.Parent = userFrame
-                
-                local avatar = Instance.new("ImageLabel")
-                avatar.Size = UDim2.new(0, 50, 0, 50)
-                avatar.Position = UDim2.new(0, 5, 0, 5)
-                avatar.BackgroundTransparency = 1
-                avatar.Parent = userFrame
-                
-                local avatarCorner = Instance.new("UICorner")
-                avatarCorner.CornerRadius = UDim.new(0, 8)
-                avatarCorner.Parent = avatar
-                
-                local nameLabel = Instance.new("TextLabel")
-                nameLabel.Size = UDim2.new(0, 300, 0, 50)
-                nameLabel.Position = UDim2.new(0, 60, 0, 5)
-                nameLabel.BackgroundTransparency = 1
-                nameLabel.Text = player.Name
-                nameLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-                nameLabel.Font = Enum.Font.SourceSansSemibold
-                nameLabel.TextSize = 18
-                nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-                nameLabel.Parent = userFrame
-                
-                local success, thumbnail = pcall(function()
-                    return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
-                end)
-                if success then
-                    avatar.Image = thumbnail
-                else
-                    avatar.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-                end
-                
-                table.insert(userList, userFrame)
-                yOffset = yOffset + userHeight + userSpacing
-            end
-        end
-        
-        userScroll.CanvasSize = UDim2.new(0, 0, 0, yOffset)
-    end
-    
-    -- Обновляем список при открытии админ-панели
-    buttons[5].MouseButton1Click:Connect(function()
-        updateUserList()
-    end)
-    
-    -- Обновление при добавлении/удалении игрока (локально)
-    Players.PlayerAdded:Connect(function(player)
-        updateUserList()
-    end)
-    Players.PlayerRemoving:Connect(function(player)
-        scriptUsers[player.Name] = nil
-        updateUserList()
-    end)
-    
-    -- Инициализация списка
-    updateUserList()
-end
+-- Обновляем список игроков при открытии вкладки и при изменении состава игроков
+buttons[4].MouseButton1Click:Connect(updatePlayerList)
+game:GetService("Players").PlayerAdded:Connect(updatePlayerList)
+game:GetService("Players").PlayerRemoving:Connect(updatePlayerList)
 
 -- Логика переключения вкладок
 for i, button in pairs(buttons) do
@@ -672,13 +687,13 @@ end
 
 -- Круглая кнопка для открытия/закрытия интерфейса
 local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 60, 0, 60)
-toggleButton.Position = UDim2.new(0, 10, 0.5, -30)
+toggleButton.Size = UDim2.new(0, isMobile and 50 or 60, 0, isMobile and 50 or 60)
+toggleButton.Position = UDim2.new(0, 20, 0.5, -toggleButton.Size.Y.Offset / 2)
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
 toggleButton.Text = ">"
 toggleButton.TextColor3 = Color3.fromRGB(200, 200, 200)
 toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 24
+toggleButton.TextSize = isMobile and 20 or 24
 toggleButton.BorderSizePixel = 0
 toggleButton.Parent = screenGui
 addClickSound(toggleButton)
@@ -686,6 +701,11 @@ addClickSound(toggleButton)
 local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(1, 0)
 toggleCorner.Parent = toggleButton
+
+local toggleStroke = Instance.new("UIStroke")
+toggleStroke.Thickness = 2
+toggleStroke.Color = Color3.fromRGB(147, 112, 219)
+toggleStroke.Parent = toggleButton
 
 -- Логика перетаскивания кнопки
 local btnDragging = false
@@ -724,20 +744,20 @@ local isOpen = false
 local isFirstLaunch = true
 
 local openTween = tweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-    Position = UDim2.new(0.5, -300, 0.5, -200)
+    Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)
 })
 local closeTween = tweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-    Position = UDim2.new(0.5, -300, 0.5, 600)
+    Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, 800)
 })
 
 local function playFirstLaunchAnimation()
     mainFrame.Visible = true
-    mainFrame.Size = UDim2.new(0, 100, 0, 100)
-    mainFrame.Position = UDim2.new(0.5, -50, 0.5, -50)
+    mainFrame.Size = isMobile and UDim2.new(0, 50, 0, 50) or UDim2.new(0, 100, 0, 100)
+    mainFrame.Position = UDim2.new(0.5, -mainFrame.Size.X.Offset / 2, 0.5, -mainFrame.Size.Y.Offset / 2)
     
     local launchTween = tweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 600, 0, 400),
-        Position = UDim2.new(0.5, -300, 0.5, -200)
+        Size = mainFrameSize,
+        Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)
     })
     launchTween:Play()
     launchTween.Completed:Wait()
