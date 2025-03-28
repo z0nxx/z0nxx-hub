@@ -19,7 +19,9 @@ game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
 startSound:Play()
 
 -- Загружаем и запускаем скрипт с изображением
-loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua"))()
+pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua"))()
+end)
 
 -- Ждем 7 секунд
 wait(7)
@@ -55,7 +57,7 @@ uiStroke.Parent = mainFrame
 
 -- Верхняя панель для перетаскивания
 local dragBar = Instance.new("Frame")
-dragBar.Size = UDim2.new(1, 0, 0, 60)
+dragBar.Size = UDim2.new(1, 0, 0, isMobile and 40 or 60)
 dragBar.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
 dragBar.BorderSizePixel = 0
 dragBar.Parent = mainFrame
@@ -108,7 +110,7 @@ local contentFrames = {}
 for i = 1, 4 do
     local button = Instance.new("TextButton")
     button.Size = isMobile and UDim2.new(0, 90, 0, 30) or UDim2.new(0, 150, 0, 40)
-    button.Position = UDim2.new(0, 10 + (i-1)*(isMobile and 95 or 155), 0, 10)
+    button.Position = UDim2.new(0, 5 + (i-1)*(isMobile and 95 or 155), 0, 5)
     button.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
     button.TextColor3 = Color3.fromRGB(200, 200, 200)
     button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or "Player Finder"
@@ -130,8 +132,8 @@ for i = 1, 4 do
     end)
     
     local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -20, 0, isMobile and 230 or 380)
-    contentFrame.Position = UDim2.new(0, 10, 0, 60)
+    contentFrame.Size = UDim2.new(1, -20, 0, isMobile and 250 or 380)
+    contentFrame.Position = UDim2.new(0, 10, 0, isMobile and 40 or 60)
     contentFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
     contentFrame.BorderSizePixel = 0
     contentFrame.Parent = mainFrame
@@ -145,80 +147,172 @@ for i = 1, 4 do
     table.insert(contentFrames, contentFrame)
 end
 
--- Содержимое вкладки "About Creator"
+-- Содержимое вкладки "About Creator" с прокруткой
 local creatorFrame = contentFrames[1]
-local profileImage = Instance.new("ImageLabel")
-profileImage.Size = isMobile and UDim2.new(0, 100, 0, 100) or UDim2.new(0, 180, 0, 180)
-profileImage.Position = UDim2.new(0, 20, 0, 20)
-profileImage.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-local userId = 2316299341 -- UserId для crendel223
-local success, thumbnail = pcall(function()
-    return game:GetService("Players"):GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size100x100 or Enum.ThumbnailSize.Size180x180)
+
+local creatorScroll = Instance.new("ScrollingFrame")
+creatorScroll.Size = UDim2.new(1, 0, 1, 0)
+creatorScroll.Position = UDim2.new(0, 0, 0, 0)
+creatorScroll.BackgroundTransparency = 1
+creatorScroll.ScrollBarThickness = 8
+creatorScroll.ScrollBarImageColor3 = Color3.fromRGB(147, 112, 219)
+creatorScroll.Parent = creatorFrame
+
+local creatorLayout = Instance.new("UIListLayout")
+creatorLayout.Padding = UDim.new(0, 15)
+creatorLayout.Parent = creatorScroll
+
+-- Профиль создателя (z0nxx)
+local z0nxxFrame = Instance.new("Frame")
+z0nxxFrame.Size = UDim2.new(1, -20, 0, isMobile and 250 or 340)
+z0nxxFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+z0nxxFrame.BorderSizePixel = 0
+z0nxxFrame.Parent = creatorScroll
+
+local z0nxxCorner = Instance.new("UICorner")
+z0nxxCorner.CornerRadius = UDim.new(0, 10)
+z0nxxCorner.Parent = z0nxxFrame
+
+local z0nxxImage = Instance.new("ImageLabel")
+z0nxxImage.Size = isMobile and UDim2.new(0, 80, 0, 80) or UDim2.new(0, 180, 0, 180)
+z0nxxImage.Position = UDim2.new(0, 20, 0, 20)
+z0nxxImage.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+local z0nxxUserId = 2316299341 -- UserId для z0nxx (crendel223)
+local successZ0nxx, thumbnailZ0nxx = pcall(function()
+    return game:GetService("Players"):GetUserThumbnailAsync(z0nxxUserId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size100x100 or Enum.ThumbnailSize.Size180x180)
 end)
-if success then
-    profileImage.Image = thumbnail
+if successZ0nxx then
+    z0nxxImage.Image = thumbnailZ0nxx
 else
-    profileImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+    z0nxxImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 end
-profileImage.Parent = creatorFrame
+z0nxxImage.Parent = z0nxxFrame
 
-local imageCorner = Instance.new("UICorner")
-imageCorner.CornerRadius = UDim.new(0, 10)
-imageCorner.Parent = profileImage
+local z0nxxImageCorner = Instance.new("UICorner")
+z0nxxImageCorner.CornerRadius = UDim.new(0, 10)
+z0nxxImageCorner.Parent = z0nxxImage
 
-local imageStroke = Instance.new("UIStroke")
-imageStroke.Thickness = 2
-imageStroke.Color = Color3.fromRGB(147, 112, 219)
-imageStroke.Parent = profileImage
+local z0nxxImageStroke = Instance.new("UIStroke")
+z0nxxImageStroke.Thickness = 2
+z0nxxImageStroke.Color = Color3.fromRGB(147, 112, 219)
+z0nxxImageStroke.Parent = z0nxxImage
 
-local creatorInfo = Instance.new("TextLabel")
-creatorInfo.Size = isMobile and UDim2.new(0, 240, 0, 190) or UDim2.new(0, 400, 0, 340)
-creatorInfo.Position = UDim2.new(0, isMobile and 130 or 220, 0, 20)
-creatorInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-creatorInfo.TextColor3 = Color3.fromRGB(220, 220, 220)
-creatorInfo.Font = Enum.Font.SourceSans
-creatorInfo.TextSize = isMobile and 14 or 18
-creatorInfo.TextWrapped = true
-creatorInfo.TextXAlignment = Enum.TextXAlignment.Left
-creatorInfo.Text = [[
+local z0nxxInfo = Instance.new("TextLabel")
+z0nxxInfo.Size = isMobile and UDim2.new(0, 260, 0, 210) or UDim2.new(0, 400, 0, 300)
+z0nxxInfo.Position = UDim2.new(0, isMobile and 110 or 220, 0, 20)
+z0nxxInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+z0nxxInfo.TextColor3 = Color3.fromRGB(220, 220, 220)
+z0nxxInfo.Font = Enum.Font.SourceSans
+z0nxxInfo.TextSize = isMobile and 14 or 18
+z0nxxInfo.TextWrapped = true
+z0nxxInfo.TextXAlignment = Enum.TextXAlignment.Left
+z0nxxInfo.Text = [[
 <font size="24" face="SourceSansBold"><b>z0nxx</b></font>
 <font color="#9370DB">Создатель скрипта</font>
 
 <font size="16" color="#9370DB"><b>Информация:</b></font>
-• Дата создания: 23 марта 2025
-• Версия скрипта: 2.0
 • Опыт работы: 3 года
+• Дата создания скрипта: 23 марта 2025
+• Версия скрипта: 2.0
 
 <font size="16" color="#9370DB"><b>Контакты:</b></font>
 • Discord: z0nxx
 • Roblox профиль: 
   <font color="#4b9bff">https://www.roblox.com/users/2316299341/profile</font>
 
-<font size="16" color="#9370DB"><b>О скрипте:</b></font>
-Этот скрипт создан для удобства игры в Roblox. 
-Он включает в себя множество полезных функций, 
-таких как FE скрипты, телепорты и поиск игроков.
-
-<font color="#9370DB">Спасибо за использование моего скрипта!</font>
+<font color="#9370DB">Создатель этого удивительного хаба!</font>
 ]]
-creatorInfo.RichText = true
-creatorInfo.Parent = creatorFrame
+z0nxxInfo.RichText = true
+z0nxxInfo.Parent = z0nxxFrame
 
-local infoCorner = Instance.new("UICorner")
-infoCorner.CornerRadius = UDim.new(0, 10)
-infoCorner.Parent = creatorInfo
+local z0nxxInfoCorner = Instance.new("UICorner")
+z0nxxInfoCorner.CornerRadius = UDim.new(0, 10)
+z0nxxInfoCorner.Parent = z0nxxInfo
 
-local infoPadding = Instance.new("UIPadding")
-infoPadding.PaddingLeft = UDim.new(0, 15)
-infoPadding.PaddingTop = UDim.new(0, 15)
-infoPadding.Parent = creatorInfo
+local z0nxxPadding = Instance.new("UIPadding")
+z0nxxPadding.PaddingLeft = UDim.new(0, 15)
+z0nxxPadding.PaddingTop = UDim.new(0, 15)
+z0nxxPadding.Parent = z0nxxInfo
+
+-- Профиль помощника (Popabebribeach / Lil_darkie)
+local popaFrame = Instance.new("Frame")
+popaFrame.Size = UDim2.new(1, -20, 0, isMobile and 250 or 340)
+popaFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+popaFrame.BorderSizePixel = 0
+popaFrame.Parent = creatorScroll
+
+local popaCorner = Instance.new("UICorner")
+popaCorner.CornerRadius = UDim.new(0, 10)
+popaCorner.Parent = popaFrame
+
+local popaImage = Instance.new("ImageLabel")
+popaImage.Size = isMobile and UDim2.new(0, 80, 0, 80) or UDim2.new(0, 180, 0, 180)
+popaImage.Position = UDim2.new(0, 20, 0, 20)
+popaImage.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+local popaUserId = 4254815427 -- UserId для @Popabebribeach (Lil_darkie)
+local successPopa, thumbnailPopa = pcall(function()
+    return game:GetService("Players"):GetUserThumbnailAsync(popaUserId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size100x100 or Enum.ThumbnailSize.Size180x180)
+end)
+if successPopa then
+    popaImage.Image = thumbnailPopa
+else
+    popaImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+end
+popaImage.Parent = popaFrame
+
+local popaImageCorner = Instance.new("UICorner")
+popaImageCorner.CornerRadius = UDim.new(0, 10)
+popaImageCorner.Parent = popaImage
+
+local popaImageStroke = Instance.new("UIStroke")
+popaImageStroke.Thickness = 2
+popaImageStroke.Color = Color3.fromRGB(147, 112, 219)
+popaImageStroke.Parent = popaImage
+
+local popaInfo = Instance.new("TextLabel")
+popaInfo.Size = isMobile and UDim2.new(0, 260, 0, 210) or UDim2.new(0, 400, 0, 300)
+popaInfo.Position = UDim2.new(0, isMobile and 110 or 220, 0, 20)
+popaInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+popaInfo.TextColor3 = Color3.fromRGB(220, 220, 220)
+popaInfo.Font = Enum.Font.SourceSans
+popaInfo.TextSize = isMobile and 14 or 18
+popaInfo.TextWrapped = true
+popaInfo.TextXAlignment = Enum.TextXAlignment.Left
+popaInfo.Text = [[
+<font size="24" face="SourceSansBold"><b>Lil_darkie</b></font>
+<font color="#9370DB">@Popabebribeach - Помощник и тестер</font>
+
+<font size="16" color="#9370DB"><b>Информация:</b></font>
+• Роль: Тестирование на мобильных устройствах
+• Вклад: Помощь в разработке и отладке
+
+<font size="16" color="#9370DB"><b>О помощнике:</b></font>
+Lil_darkie активно участвовал в тестировании 
+и помог сделать скрипт удобным для мобильных игроков.
+
+<font color="#9370DB">Спасибо за помощь в проекте!</font>
+]]
+popaInfo.RichText = true
+popaInfo.Parent = popaFrame
+
+local popaInfoCorner = Instance.new("UICorner")
+popaInfoCorner.CornerRadius = UDim.new(0, 10)
+popaInfoCorner.Parent = popaInfo
+
+local popaPadding = Instance.new("UIPadding")
+popaPadding.PaddingLeft = UDim.new(0, 15)
+popaPadding.PaddingTop = UDim.new(0, 15)
+popaPadding.Parent = popaInfo
+
+-- Устанавливаем размер холста для прокрутки
+creatorScroll.CanvasSize = UDim2.new(0, 0, 0, (isMobile and 250 or 340) * 2 + 30)
 
 -- Содержимое вкладки "FE Scripts"
 local feScriptsFrame = contentFrames[2]
 
 local sliderFrame = Instance.new("Frame")
-sliderFrame.Size = isMobile and UDim2.new(0, 300, 0, 20) or UDim2.new(0, 450, 0, 25)
-sliderFrame.Position = UDim2.new(0.5, -sliderFrame.Size.X.Offset / 2, 0, 20)
+sliderFrame.Size = isMobile and UDim2.new(0, 260, 0, 20) or UDim2.new(0, 450, 0, 25)
+sliderFrame.Position = UDim2.new(0.5, -sliderFrame.Size.X.Offset / 2, 0, 10)
 sliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
 sliderFrame.Parent = feScriptsFrame
 
@@ -228,7 +322,7 @@ sliderCorner.Parent = sliderFrame
 
 local slider = Instance.new("TextButton")
 slider.Size = UDim2.new(0, isMobile and 30 or 40, 0, isMobile and 20 or 25)
-slider.Position = UDim2.new(0, isMobile and 135 or 205, 0, 0)
+slider.Position = UDim2.new(0, isMobile and 115 or 205, 0, 0)
 slider.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
 slider.Text = ""
 slider.BorderSizePixel = 0
@@ -271,22 +365,22 @@ end)
 
 local sliderLabel = Instance.new("TextLabel")
 sliderLabel.Size = UDim2.new(0, isMobile and 80 or 100, 0, isMobile and 20 or 25)
-sliderLabel.Position = UDim2.new(0, 20, 0, 20)
+sliderLabel.Position = UDim2.new(0, 10, 0, 10)
 sliderLabel.Text = "Скорость анимаций:"
 sliderLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
 sliderLabel.BackgroundTransparency = 1
 sliderLabel.Font = Enum.Font.SourceSansSemibold
-sliderLabel.TextSize = isMobile and 14 or 16
+sliderLabel.TextSize = isMobile and 12 or 16
 sliderLabel.Parent = feScriptsFrame
 
 local valueLabel = Instance.new("TextLabel")
 valueLabel.Size = UDim2.new(0, 50, 0, isMobile and 20 or 25)
-valueLabel.Position = UDim2.new(0, isMobile and 330 or 580, 0, 20)
+valueLabel.Position = UDim2.new(0, isMobile and 300 or 580, 0, 10)
 valueLabel.Text = tostring(sliderValue)
 valueLabel.TextColor3 = Color3.fromRGB(147, 112, 219)
 valueLabel.BackgroundTransparency = 1
 valueLabel.Font = Enum.Font.SourceSansSemibold
-valueLabel.TextSize = isMobile and 14 or 16
+valueLabel.TextSize = isMobile and 12 or 16
 valueLabel.Parent = feScriptsFrame
 
 spawn(function()
@@ -313,12 +407,12 @@ end)
 
 -- Кнопки для FE Scripts
 local feButtons = {}
-local buttonWidth = isMobile and 180 or 280
-local buttonHeight = isMobile and 40 or 50
+local buttonWidth = isMobile and 170 or 280
+local buttonHeight = isMobile and 35 or 50
 local spacingX = isMobile and 10 or 20
 local spacingY = isMobile and 10 or 15
-local startX = 20
-local startY = isMobile and 50 or 60
+local startX = 10
+local startY = isMobile and 40 or 60
 
 for i = 1, 8 do
     local feButton = Instance.new("TextButton")
@@ -335,47 +429,63 @@ for i = 1, 8 do
     if i == 1 then
         feButton.Text = "Fly (PC)"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"))()
+            end)
         end)
     elseif i == 2 then
         feButton.Text = "R4D"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script'))()
+            pcall(function()
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script'))()
+            end)
         end)
     elseif i == 3 then
         feButton.Text = "Bypass Chat"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/bypass-chat-by-z0nxx/refs/heads/main/bypass%20chat/lua"))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/bypass-chat-by-z0nxx/refs/heads/main/bypass%20chat/lua"))()
+            end)
         end)
     elseif i == 4 then
         feButton.Text = "Infinite Yield"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+            end)
         end)
     elseif i == 5 then
         feButton.Text = "Mango Hub"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub", true))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub", true))()
+            end)
         end)
     elseif i == 6 then
         feButton.Text = "Rvanka"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"))()
+            end)
         end)
     elseif i == 7 then
         feButton.Text = "System Broken"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"))()
+            end)
         end)
     elseif i == 8 then
         feButton.Text = "AVATAR EDITOR"
         feButton.MouseButton1Click:Connect(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"))()
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"))()
+            end)
         end)
     end
     
     feButton.Font = Enum.Font.SourceSansSemibold
-    feButton.TextSize = isMobile and 14 or 18
+    feButton.TextSize = isMobile and 12 or 18
     feButton.BorderSizePixel = 0
     feButton.Parent = feScriptsFrame
     addClickSound(feButton)
@@ -427,7 +537,7 @@ for i = 1, totalButtons do
         scrollButton.Text = "Спавн"
         scrollButton.MouseButton1Click:Connect(function()
             if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                player.Character.HumanoidRootPart.CFrame = CFrame.new(-22.2000103, 2.4087739, -15.4999981, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(-22.2000103, 2.4087739, 15.4999981, 1, 0, 0, 0, 1, 0, 0, 0, 1)
             end
         end)
     elseif i == 2 then
@@ -449,7 +559,7 @@ for i = 1, totalButtons do
     end
     
     scrollButton.Font = Enum.Font.SourceSansSemibold
-    scrollButton.TextSize = isMobile and 14 or 18
+    scrollButton.TextSize = isMobile and 12 or 18
     scrollButton.BorderSizePixel = 0
     scrollButton.Parent = scrollFrame
     addClickSound(scrollButton)
@@ -498,7 +608,7 @@ playerListTitle.BackgroundColor3 = Color3.fromRGB(50, 50, 55)
 playerListTitle.TextColor3 = Color3.fromRGB(220, 220, 220)
 playerListTitle.Text = "Игроки в игре"
 playerListTitle.Font = Enum.Font.SourceSansSemibold
-playerListTitle.TextSize = isMobile and 14 or 18
+playerListTitle.TextSize = isMobile and 12 or 18
 playerListTitle.Parent = playerListFrame
 
 local titleCorner = Instance.new("UICorner")
@@ -529,8 +639,8 @@ playerInfoCorner.CornerRadius = UDim.new(0, 8)
 playerInfoCorner.Parent = playerInfoFrame
 
 local avatarImage = Instance.new("ImageLabel")
-avatarImage.Size = isMobile and UDim2.new(0, 100, 0, 100) or UDim2.new(0, 150, 0, 150)
-avatarImage.Position = UDim2.new(0.5, -avatarImage.Size.X.Offset / 2, 0, 20)
+avatarImage.Size = isMobile and UDim2.new(0, 80, 0, 80) or UDim2.new(0, 150, 0, 150)
+avatarImage.Position = UDim2.new(0.5, -avatarImage.Size.X.Offset / 2, 0, 10)
 avatarImage.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 avatarImage.Parent = playerInfoFrame
@@ -545,8 +655,8 @@ avatarStroke.Color = Color3.fromRGB(147, 112, 219)
 avatarStroke.Parent = avatarImage
 
 local playerInfo = Instance.new("TextLabel")
-playerInfo.Size = isMobile and UDim2.new(0, 230, 0, 100) or UDim2.new(0, 380, 0, 180)
-playerInfo.Position = UDim2.new(0, 10, 0, isMobile and 130 or 190)
+playerInfo.Size = isMobile and UDim2.new(0, 230, 0, 120) or UDim2.new(0, 380, 0, 180)
+playerInfo.Position = UDim2.new(0, isMobile and 10 or 10, 0, isMobile and 100 or 190)
 playerInfo.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 playerInfo.TextColor3 = Color3.fromRGB(220, 220, 220)
 playerInfo.Font = Enum.Font.SourceSans
@@ -567,13 +677,13 @@ infoPadding.PaddingTop = UDim.new(0, 10)
 infoPadding.Parent = playerInfo
 
 local teleportButton = Instance.new("TextButton")
-teleportButton.Size = isMobile and UDim2.new(0, 120, 0, 30) or UDim2.new(0, 200, 0, 40)
+teleportButton.Size = isMobile and UDim2.new(0, 100, 0, 30) or UDim2.new(0, 200, 0, 40)
 teleportButton.Position = UDim2.new(0.5, -teleportButton.Size.X.Offset / 2, 1, isMobile and -40 or -60)
 teleportButton.BackgroundColor3 = Color3.fromRGB(147, 112, 219)
 teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 teleportButton.Text = "Телепортироваться"
 teleportButton.Font = Enum.Font.SourceSansBold
-teleportButton.TextSize = isMobile and 14 or 18
+teleportButton.TextSize = isMobile and 12 or 18
 teleportButton.BorderSizePixel = 0
 teleportButton.Visible = false
 teleportButton.Parent = playerInfoFrame
@@ -623,7 +733,7 @@ local function updatePlayerList()
         playerButton.Font = Enum.Font.SourceSansSemibold
         playerButton.TextSize = isMobile and 12 or 16
         playerButton.BorderSizePixel = 0
-        playerButton.Parent = playerListScroll -- Исправлено с ParentIt на Parent
+        playerButton.Parent = playerListScroll
         addClickSound(playerButton)
         
         local buttonCorner = Instance.new("UICorner")
@@ -661,7 +771,7 @@ local function updatePlayerList()
                 "<font color='#9370DB'>Дата создания:</font> %s\n"..
                 "<font color='#9370DB'>Команда:</font> %s\n"..
                 "<font color='#9370DB'>В игре:</font> %s",
-                isMobile and 16 or 18, displayName, username, userId, creationDate, team, isInGame
+                isMobile and 14 or 18, displayName, username, userId, creationDate, team, isInGame
             )
             playerInfo.RichText = true
             teleportButton.Visible = true
@@ -752,7 +862,7 @@ local closeTween = tweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.Easing
 
 local function playFirstLaunchAnimation()
     mainFrame.Visible = true
-    mainFrame.Size = isMobile and UDim2.new(0, 50, 0, 50) or UDim2.new(0, 100, 0, 100)
+    mainFrame.Size = isMobile and UDim2.new(0, 50, 0, 50) or UDim2.new(0,_working100, 0, 100)
     mainFrame.Position = UDim2.new(0.5, -mainFrame.Size.X.Offset / 2, 0.5, -mainFrame.Size.Y.Offset / 2)
     
     local launchTween = tweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
