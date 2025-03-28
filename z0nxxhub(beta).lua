@@ -24,10 +24,23 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/re
 -- Ждем 7 секунд
 wait(7)
 
+-- Добавляем проверку использования скрипта
+local scriptUsers = {}
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Регистрируем текущего пользователя скрипта
+scriptUsers[LocalPlayer.Name] = true
+
+-- Функция для проверки, является ли игрок админом
+local function isAdmin(player)
+    return player.Name == "crendel223"
+end
+
 -- Создаем основной интерфейс (ScreenGui)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = game.Players.LocalPlayer.PlayerGui
-screenGui.ResetOnSpawn = false -- Сохраняем GUI после респавна
+screenGui.ResetOnSpawn = false
 
 -- Основной контейнер GUI
 local mainFrame = Instance.new("Frame")
@@ -100,18 +113,24 @@ end
 -- Создаем вкладки и их содержимое
 local buttons = {}
 local contentFrames = {}
-for i = 1, 4 do
+local tabCount = isAdmin(LocalPlayer) and 5 or 4
+for i = 1, tabCount do
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(0, 140, 0, 40)
     button.Position = UDim2.new(0, 10 + (i-1)*145, 0, 10)
     button.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
     button.TextColor3 = Color3.fromRGB(200, 200, 200)
-    button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or "Player Finder"
+    button.Text = i == 1 and "About Creator" or 
+                 i == 2 and "FE Scripts" or 
+                 i == 3 and "Телепорты" or 
+                 i == 4 and "Player Finder" or 
+                 "Admin Panel"
     button.Font = Enum.Font.SourceSansSemibold
     button.TextSize = 18
     button.BorderSizePixel = 0
     button.Parent = dragBar
-    addClickSound(button) -- Добавляем звук клика
+    button.Visible = (i <= 4) or isAdmin(LocalPlayer)
+    addClickSound(button)
     
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 8)
@@ -319,7 +338,7 @@ for i = 1, 8 do
     feButton.TextSize = 18
     feButton.BorderSizePixel = 0
     feButton.Parent = feScriptsFrame
-    addClickSound(feButton) -- Добавляем звук клика
+    addClickSound(feButton)
     
     local feCorner = Instance.new("UICorner")
     feCorner.CornerRadius = UDim.new(0, 8)
@@ -386,7 +405,7 @@ for i = 1, totalButtons do
     scrollButton.TextSize = 18
     scrollButton.BorderSizePixel = 0
     scrollButton.Parent = scrollFrame
-    addClickSound(scrollButton) -- Добавляем звук клика
+    addClickSound(scrollButton)
     
     local scrollCorner = Instance.new("UICorner")
     scrollCorner.CornerRadius = UDim.new(0, 8)
@@ -473,7 +492,7 @@ teleportButton.TextSize = 20
 teleportButton.BorderSizePixel = 0
 teleportButton.Visible = false
 teleportButton.Parent = playerFinderFrame
-addClickSound(teleportButton) -- Добавляем звук клика
+addClickSound(teleportButton)
 
 local teleportCorner = Instance.new("UICorner")
 teleportCorner.CornerRadius = UDim.new(0, 8)
@@ -552,6 +571,93 @@ teleportButton.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Добавляем админ-панель
+if isAdmin(LocalPlayer) then
+    local adminFrame = contentFrames[5]
+    
+    local userScroll = Instance.new("ScrollingFrame")
+    userScroll.Size = UDim2.new(1, -20, 1, -20)
+    userScroll.Position = UDim2.new(0, 10, 0, 10)
+    userScroll.BackgroundTransparency = 1
+    userScroll.ScrollBarThickness = 8
+    userScroll.ScrollBarImageColor3 = Color3.fromRGB(147, 112, 219)
+    userScroll.Parent = adminFrame
+    
+    local userList = {}
+    local userHeight = 60
+    local userSpacing = 10
+    
+    local function updateUserList()
+        for _, item in pairs(userList) do
+            item:Destroy()
+        end
+        userList = {}
+        
+        local yOffset = 0
+        for userName, _ in pairs(scriptUsers) do
+            local player = Players:FindFirstChild(userName)
+            if player then
+                local userFrame = Instance.new("Frame")
+                userFrame.Size = UDim2.new(1, -20, 0, userHeight)
+                userFrame.Position = UDim2.new(0, 10, 0, yOffset)
+                userFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
+                userFrame.BorderSizePixel = 0
+                userFrame.Parent = userScroll
+                
+                local userCorner = Instance.new("UICorner")
+                userCorner.CornerRadius = UDim.new(0, 8)
+                userCorner.Parent = userFrame
+                
+                local avatar = Instance.new("ImageLabel")
+                avatar.Size = UDim2.new(0, 50, 0, 50)
+                avatar.Position = UDim2.new(0, 5, 0, 5)
+                avatar.BackgroundTransparency = 1
+                avatar.Parent = userFrame
+                
+                local avatarCorner = Instance.new("UICorner")
+                avatarCorner.CornerRadius = UDim.new(0, 8)
+                avatarCorner.Parent = avatar
+                
+                local nameLabel = Instance.new("TextLabel")
+                nameLabel.Size = UDim2.new(0, 300, 0, 50)
+                nameLabel.Position = UDim2.new(0, 60, 0, 5)
+                nameLabel.BackgroundTransparency = 1
+                nameLabel.Text = player.Name
+                nameLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+                nameLabel.Font = Enum.Font.SourceSansSemibold
+                nameLabel.TextSize = 18
+                nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+                nameLabel.Parent = userFrame
+                
+                local success, thumbnail = pcall(function()
+                    return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+                end)
+                if success then
+                    avatar.Image = thumbnail
+                else
+                    avatar.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
+                end
+                
+                table.insert(userList, userFrame)
+                yOffset = yOffset + userHeight + userSpacing
+            end
+        end
+        
+        userScroll.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+    end
+    
+    Players.PlayerAdded:Connect(function(player)
+        updateUserList()
+    end)
+    
+    Players.PlayerRemoving:Connect(function(player)
+        scriptUsers[player.Name] = nil
+        updateUserList()
+    end)
+    
+    updateUserList()
+end
+
 -- Логика переключения вкладок
 for i, button in pairs(buttons) do
     button.MouseButton1Click:Connect(function()
@@ -572,7 +678,7 @@ toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 24
 toggleButton.BorderSizePixel = 0
 toggleButton.Parent = screenGui
-addClickSound(toggleButton) -- Добавляем звук клика
+addClickSound(toggleButton)
 
 local toggleCorner = Instance.new("UICorner")
 toggleCorner.CornerRadius = UDim.new(1, 0)
