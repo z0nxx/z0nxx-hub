@@ -1,3 +1,11 @@
+-- Загрузка первого скрипта
+local firstScript = game:HttpGet("https://raw.githubusercontent.com/z0nxx/zastavca/refs/heads/main/zastavca.lua")
+loadstring(firstScript)()
+
+-- Ожидание завершения первого скрипта (предполагаем, что он завершится через некоторое время)
+wait(10) -- Увеличьте это время, если первый скрипт работает дольше
+
+-- Основной GUI скрипт
 local SoundService = game:GetService("SoundService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -406,8 +414,6 @@ for i, button in pairs(buttons) do
         end 
     end) 
 end
-
--- Stuart
 
 -- Кнопка переключения
 local toggleButton = Instance.new("TextButton", screenGui)
