@@ -73,13 +73,13 @@ end
 
 -- Вкладки
 local buttons, contentFrames = {}, {}
-for i = 1, 4 do
+for i = 1, 5 do
     local button = Instance.new("TextButton", dragBar)
     button.Size = isMobile and UDim2.new(0, 90, 0, 30) or UDim2.new(0, 150, 0, 40)
     button.Position = UDim2.new(0, 5 + (i-1)*(isMobile and 95 or 155), 0, 5)
     button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     button.TextColor3 = Color3.fromRGB(200, 200, 200)
-    button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or "Player Finder"
+    button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or i == 4 and "Player Finder" or "❤"
     button.Font = Enum.Font.SourceSansSemibold
     button.TextSize = isMobile and 14 or 18
     button.BorderSizePixel = 0
@@ -407,6 +407,41 @@ buttons[4].MouseButton1Click:Connect(updatePlayerList)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
+-- Вкладка с сердечком (5-я вкладка)
+local thanksFrame = Instance.new("ScrollingFrame", contentFrames[5])
+thanksFrame.Size = UDim2.new(1, -20, 1, -20)
+thanksFrame.Position = UDim2.new(0, 10, 0, 10)
+thanksFrame.BackgroundTransparency = 1
+thanksFrame.ScrollBarThickness = 8
+thanksFrame.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
+
+local imageIds = {139269298868770, 75541226381419, 128018455630626, 128018455630626}
+for i, imageId in ipairs(imageIds) do
+    local imageLabel = Instance.new("ImageLabel", thanksFrame)
+    imageLabel.Size = isMobile and UDim2.new(0, 200, 0, 200) or UDim2.new(0, 300, 0, 300) -- Увеличены размеры изображений
+    imageLabel.Position = UDim2.new(0.5, -imageLabel.Size.X.Offset / 2, 0, (i-1) * (isMobile and 210 or 310))
+    imageLabel.BackgroundTransparency = 1
+    imageLabel.Image = "rbxassetid://" .. imageId
+    Instance.new("UICorner", imageLabel).CornerRadius = UDim.new(0, 10)
+    local imgStroke = Instance.new("UIStroke", imageLabel)
+    imgStroke.Thickness = 2
+    imgStroke.Color = Color3.fromRGB(200, 200, 200)
+end
+
+local thanksLabel = Instance.new("TextLabel", thanksFrame)
+thanksLabel.Size = UDim2.new(1, -20, 0, isMobile and 100 or 120) -- Увеличена высота для полного текста
+thanksLabel.Position = UDim2.new(0, 10, 0, (#imageIds) * (isMobile and 210 or 310))
+thanksLabel.BackgroundTransparency = 1
+thanksLabel.Text = "СПАСИБО ВСЕМ ДРУЗЬЯМ ВЫ МЕНЯ ОЧЕНЬ ПОРАДОВАЛИ В ЭТОТ ЗАМЕЧАТЕЛЬНЫЙ ДЕНЬ!!❤❤❤ и особенно создатель клана Wexx))"
+thanksLabel.TextColor3 = Color3.fromRGB(255, 105, 180) -- Розовый цвет для текста
+thanksLabel.Font = Enum.Font.GothamBlack -- Красивый шрифт
+thanksLabel.TextSize = isMobile and 16 or 24
+thanksLabel.TextWrapped = true
+thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+thanksFrame.CanvasSize = UDim2.new(0, 0, 0, (#imageIds) * (isMobile and 210 or 310) + (isMobile and 110 or 130))
+
+-- Привязка кнопок к вкладкам
 for i, button in pairs(buttons) do 
     button.MouseButton1Click:Connect(function() 
         for j, frame in pairs(contentFrames) do 
