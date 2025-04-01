@@ -2,8 +2,8 @@
 local firstScript = game:HttpGet("https://raw.githubusercontent.com/z0nxx/zastavca/refs/heads/main/zastavca.lua")
 loadstring(firstScript)()
 
--- Ожидание завершения первого скрипта (предполагаем, что он завершится через некоторое время)
-wait(10) -- Увеличьте это время, если первый скрипт работает дольше
+-- Ожидание завершения первого скрипта
+wait(10)
 
 -- Основной GUI скрипт
 local SoundService = game:GetService("SoundService")
@@ -21,7 +21,7 @@ local clickSound = Instance.new("Sound", SoundService) clickSound.SoundId = "rbx
 game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {Text = "z0nxx hub", Color = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 18})
 startSound:Play()
 
--- Загрузка внешнего скрипта
+-- Загрузка внешнего скрипта (картинка)
 pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua"))() end)
 wait(7)
 
@@ -71,15 +71,15 @@ local function addClickSound(button)
     end) 
 end
 
--- Вкладки
+-- Вкладки (4 вкладки)
 local buttons, contentFrames = {}, {}
-for i = 1, 5 do
+for i = 1, 4 do
     local button = Instance.new("TextButton", dragBar)
     button.Size = isMobile and UDim2.new(0, 90, 0, 30) or UDim2.new(0, 150, 0, 40)
     button.Position = UDim2.new(0, 5 + (i-1)*(isMobile and 95 or 155), 0, 5)
     button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     button.TextColor3 = Color3.fromRGB(200, 200, 200)
-    button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or i == 4 and "Player Finder" or "❤"
+    button.Text = i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or "Player Finder"
     button.Font = Enum.Font.SourceSansSemibold
     button.TextSize = isMobile and 14 or 18
     button.BorderSizePixel = 0
@@ -199,7 +199,8 @@ sliderLabel.Font = Enum.Font.SourceSansSemibold
 sliderLabel.TextSize = isMobile and 12 or 16
 
 local valueLabel = Instance.new("TextLabel", contentFrames[2]) 
-valueLabel.Size = UDim2.new(0, 50, 0, isMobile and 20 or 25)  valueLabel.Position = UDim2.new(0, isMobile and 300 or 580, 0, 10) 
+valueLabel.Size = UDim2.new(0, 50, 0, isMobile and 20 or 25)  
+valueLabel.Position = UDim2.new(0, isMobile and 300 or 580, 0, 10) 
 valueLabel.Text = tostring(sliderValue) 
 valueLabel.TextColor3 = Color3.fromRGB(200, 200, 200) 
 valueLabel.BackgroundTransparency = 1 
@@ -232,7 +233,9 @@ for i, data in pairs({
     {"Mango Hub", "https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub"},
     {"Rvanka", "https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"},
     {"System Broken", "https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"},
-    {"AVATAR EDITOR", "https://raw.githubusercontent.com/rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"}
+    {"AVATAR EDITOR", "https://rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"},
+    {"R6", "https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"}, -- Замена Simple Spy
+    {"Chat Draw", "https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"} -- Замена Dex Explorer
 }) do
     local feButton = Instance.new("TextButton", contentFrames[2])
     feButton.Size = UDim2.new(0, isMobile and 170 or 280, 0, isMobile and 35 or 50)
@@ -244,7 +247,11 @@ for i, data in pairs({
     feButton.TextSize = isMobile and 12 or 18
     feButton.BorderSizePixel = 0
     addClickSound(feButton)
-    feButton.MouseButton1Click:Connect(function() pcall(function() loadstring(game:HttpGet(data[2]))() end) end)
+    feButton.MouseButton1Click:Connect(function() 
+        pcall(function() 
+            loadstring(game:HttpGet(data[2], true))() 
+        end) 
+    end)
     Instance.new("UICorner", feButton).CornerRadius = UDim.new(0, 8)
     local feStroke = Instance.new("UIStroke", feButton) feStroke.Thickness = 1 feStroke.Color = Color3.fromRGB(30, 30, 30)
     feButton.MouseEnter:Connect(function() feButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200) feButton.TextColor3 = Color3.fromRGB(0, 0, 0) end)
@@ -406,40 +413,6 @@ end
 buttons[4].MouseButton1Click:Connect(updatePlayerList)
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
-
--- Вкладка с сердечком (5-я вкладка)
-local thanksFrame = Instance.new("ScrollingFrame", contentFrames[5])
-thanksFrame.Size = UDim2.new(1, -20, 1, -20)
-thanksFrame.Position = UDim2.new(0, 10, 0, 10)
-thanksFrame.BackgroundTransparency = 1
-thanksFrame.ScrollBarThickness = 8
-thanksFrame.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
-
-local imageIds = {139269298868770, 75541226381419, 128018455630626, 128018455630626}
-for i, imageId in ipairs(imageIds) do
-    local imageLabel = Instance.new("ImageLabel", thanksFrame)
-    imageLabel.Size = isMobile and UDim2.new(0, 200, 0, 200) or UDim2.new(0, 300, 0, 300) -- Увеличены размеры изображений
-    imageLabel.Position = UDim2.new(0.5, -imageLabel.Size.X.Offset / 2, 0, (i-1) * (isMobile and 210 or 310))
-    imageLabel.BackgroundTransparency = 1
-    imageLabel.Image = "rbxassetid://" .. imageId
-    Instance.new("UICorner", imageLabel).CornerRadius = UDim.new(0, 10)
-    local imgStroke = Instance.new("UIStroke", imageLabel)
-    imgStroke.Thickness = 2
-    imgStroke.Color = Color3.fromRGB(200, 200, 200)
-end
-
-local thanksLabel = Instance.new("TextLabel", thanksFrame)
-thanksLabel.Size = UDim2.new(1, -20, 0, isMobile and 100 or 120) -- Увеличена высота для полного текста
-thanksLabel.Position = UDim2.new(0, 10, 0, (#imageIds) * (isMobile and 210 or 310))
-thanksLabel.BackgroundTransparency = 1
-thanksLabel.Text = "СПАСИБО ВСЕМ ДРУЗЬЯМ ВЫ МЕНЯ ОЧЕНЬ ПОРАДОВАЛИ В ЭТОТ ЗАМЕЧАТЕЛЬНЫЙ ДЕНЬ!!❤❤❤ и особенно создатель клана Wexx))"
-thanksLabel.TextColor3 = Color3.fromRGB(255, 105, 180) -- Розовый цвет для текста
-thanksLabel.Font = Enum.Font.GothamBlack -- Красивый шрифт
-thanksLabel.TextSize = isMobile and 16 or 24
-thanksLabel.TextWrapped = true
-thanksLabel.TextXAlignment = Enum.TextXAlignment.Center
-
-thanksFrame.CanvasSize = UDim2.new(0, 0, 0, (#imageIds) * (isMobile and 210 or 310) + (isMobile and 110 or 130))
 
 -- Привязка кнопок к вкладкам
 for i, button in pairs(buttons) do 
