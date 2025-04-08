@@ -67,13 +67,19 @@ for i, userData in pairs({{2316299341, "z0nxx", "Создатель скрипт
     
     local info = Instance.new("TextLabel", frame)
     info.Size, info.Position, info.BackgroundColor3, info.TextColor3, info.Font, info.TextSize, info.TextWrapped, info.TextXAlignment = isMobile and UDim2.new(0, 260, 0, 210) or UDim2.new(0, 400, 0, 300), UDim2.new(0, isMobile and 110 or 220, 0, 20), Color3.fromRGB(40, 40, 40), Color3.fromRGB(220, 220, 220), Enum.Font.SourceSans, isMobile and 14 or 18, true, Enum.TextXAlignment.Left
-    info.Text = string.format("<font size='24' face='SourceSansBold'><b>%s</b></font>\n<font color='#d3d3d3'>%s</font>\n\n<font size='16' contentFramescolor='#d3d3d3'><b>Информация:</b></font>\n%s\n\n<font size='16' color='#d3d3d3'><b>%s:</b></font>\n%s\n\n<font color='#d3d3d3'>%s</font>", userData[2], userData[3], userData[4], i == 1 and "Контакты" or "О помощнике", userData[5], userData[6])
+    info.Text = string.format("<font size='24' face='SourceSansBold'><b>%s</b></font>\n<font color='#d3d3d3'>%s</font>\n\n<font size='16' color='#d3d3d3'><b>Информация:</b></font>\n%s\n\n<font size='16' color='#d3d3d3'><b>%s:</b></font>\n%s\n\n<font color='#d3d3d3'>%s</font>", userData[2], userData[3], userData[4], i == 1 and "Контакты" or "О помощнике", userData[5], userData[6])
     info.RichText = true
     Instance.new("UICorner", info).CornerRadius = UDim.new(0, 10)
     local padding = Instance.new("UIPadding", info) padding.PaddingLeft, padding.PaddingTop = UDim.new(0, 15), UDim.new(0, 15)
 end
 creatorScroll.CanvasSize = UDim2.new(0, 0, 0, (isMobile and 250 or 340) * 2 + 30)
 
+-- Вторая вкладка (FE Scripts) с прокруткой и слайдером
+local feScrollFrame = Instance.new("ScrollingFrame", contentFrames[2])
+feScrollFrame.Size, feScrollFrame.Position, feScrollFrame.BackgroundTransparency, feScrollFrame.ScrollBarThickness, feScrollFrame.ScrollBarImageColor3 = UDim2.new(1, -20, 1, -60), UDim2.new(0, 10, 0, 50), 1, 8, Color3.fromRGB(200, 200, 200)
+Instance.new("UIListLayout", feScrollFrame).Padding = UDim.new(0, 10)
+
+-- Слайдер скорости анимаций
 local sliderFrame = Instance.new("Frame", contentFrames[2])
 sliderFrame.Size, sliderFrame.Position, sliderFrame.BackgroundColor3 = isMobile and UDim2.new(0, 260, 0, 20) or UDim2.new(0, 450, 0, 25), UDim2.new(0.5, -(isMobile and 130 or 225), 0, 10), Color3.fromRGB(60, 60, 60)
 Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 10)
@@ -99,16 +105,41 @@ valueLabel.Size, valueLabel.Position, valueLabel.Text, valueLabel.TextColor3, va
 spawn(function() while wait(0.1) do valueLabel.Text = string.format("%.1f", sliderValue) end end)
 spawn(function() local player = LocalPlayer while task.wait() do local character = player.Character or player.CharacterAdded:Wait() local humanoid = character:FindFirstChildOfClass("Humanoid") or character:FindFirstChildOfClass("AnimationController") if humanoid then for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do track:AdjustSpeed(sliderValue) end end end end)
 
-for i, data in pairs({{"Fly (PC)", "https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"}, {"R4D", "https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script"}, {"Bypass Chat", "https://raw.githubusercontent.com/z0nxx/bypass-chat-by-z0nxx/refs/heads/main/bypass%20chat/lua"}, {"Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"}, {"Mango Hub", "https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub"}, {"Rvanka", "https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"}, {"System Broken", "https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"}, {"AVATAR EDITOR", "https://rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"}, {"R6", "https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"}, {"Chat Draw", "https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"}}) do
-    local feButton = Instance.new("TextButton", contentFrames[2])
-    feButton.Size, feButton.Position, feButton.BackgroundColor3, feButton.TextColor3, feButton.Text, feButton.Font, feButton.TextSize, feButton.BorderSizePixel = UDim2.new(0, isMobile and 170 or 280, 0, isMobile and 35 or 50), UDim2.new(0, 10 + ((i-1)%2)*(isMobile and 180 or 300), 0, (isMobile and 40 or 60) + math.floor((i-1)/2)*(isMobile and 45 or 65)), Color3.fromRGB(50, 50, 50), Color3.fromRGB(200, 200, 200), data[1], Enum.Font.SourceSansSemibold, isMobile and 12 or 18, 0
+-- Кнопки FE Scripts
+local feScripts = {
+    {"Fly (PC)", "https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"},
+    {"R4D", "https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script"},
+    {"Bypass Chat", "https://raw.githubusercontent.com/z0nxx/bypass-chat-by-z0nxx/refs/heads/main/bypass%20chat/lua"},
+    {"Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
+    {"Mango Hub", "https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub"},
+    {"Rvanka", "https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"},
+    {"System Broken", "https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"},
+    {"AVATAR EDITOR", "https://rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"},
+    {"R6", "https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"},
+    {"Chat Draw", "https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"},
+    {"Vape", "https://raw.githubusercontent.com/z0nxx/vape/refs/heads/main/vape.lua"},
+    {"Fling v3", "https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"}
+}
+
+for i, data in pairs(feScripts) do
+    local feButton = Instance.new("TextButton", feScrollFrame)
+    feButton.Size, feButton.Position, feButton.BackgroundColor3, feButton.TextColor3, feButton.Text, feButton.Font, feButton.TextSize, feButton.BorderSizePixel = UDim2.new(1, -20, 0, isMobile and 35 or 50), UDim2.new(0, 10, 0, (i-1)*(isMobile and 45 or 60)), Color3.fromRGB(50, 50, 50), Color3.fromRGB(200, 200, 200), data[1], Enum.Font.SourceSansSemibold, isMobile and 12 or 18, 0
     addClickSound(feButton)
     feButton.MouseButton1Click:Connect(function() pcall(function() loadstring(game:HttpGet(data[2], true))() end) end)
     Instance.new("UICorner", feButton).CornerRadius = UDim.new(0, 8)
     local feStroke = Instance.new("UIStroke", feButton) feStroke.Thickness, feStroke.Color = 1, Color3.fromRGB(30, 30, 30)
-    feButton.MouseEnter:Connect(function() feButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200) feButton.TextColor3 = Color3.fromRGB(0, 0, 0) TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(0, isMobile and 175 or 285, 0, isMobile and 37 or 52)}):Play() end)
-    feButton.MouseLeave:Connect(function() feButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50) feButton.TextColor3 = Color3.fromRGB(200, 200, 200) TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(0, isMobile and 170 or 280, 0, isMobile and 35 or 50)}):Play() end)
+    feButton.MouseEnter:Connect(function() 
+        feButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200) 
+        feButton.TextColor3 = Color3.fromRGB(0, 0, 0) 
+        TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, isMobile and 37 or 52)}):Play() 
+    end)
+    feButton.MouseLeave:Connect(function() 
+        feButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50) 
+        feButton.TextColor3 = Color3.fromRGB(200, 200, 200) 
+        TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, isMobile and 35 or 50)}):Play() 
+    end)
 end
+feScrollFrame.CanvasSize = UDim2.new(0, 0, 0, #feScripts * (isMobile and 45 or 60))
 
 local scrollFrame = Instance.new("ScrollingFrame", contentFrames[3])
 scrollFrame.Size, scrollFrame.Position, scrollFrame.BackgroundTransparency, scrollFrame.ScrollBarThickness, scrollFrame.ScrollBarImageColor3 = UDim2.new(1, -20, 1, -20), UDim2.new(0, 10, 0, 10), 1, 8, Color3.fromRGB(200, 200, 200)
