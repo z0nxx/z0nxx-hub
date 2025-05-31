@@ -32,6 +32,39 @@ dragBar.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserIn
 
 local function addClickSound(button) button.MouseButton1Click:Connect(function() clickSound:Play() end) end
 
+-- Create notification frame for FE Scripts
+local notificationFrame = Instance.new("Frame", screenGui)
+notificationFrame.Size = UDim2.new(0, isMobile and 200 or 300, 0, isMobile and 40 or 50)
+notificationFrame.Position = UDim2.new(0.5, -(isMobile and 100 or 150), 1, -60)
+notificationFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+notificationFrame.BorderSizePixel = 0
+notificationFrame.Visible = false
+Instance.new("UICorner", notificationFrame).CornerRadius = UDim.new(0, 8)
+local notificationStroke = Instance.new("UIStroke", notificationFrame)
+notificationStroke.Thickness, notificationStroke.Color = 1, Color3.fromRGB(200, 200, 200)
+
+local notificationLabel = Instance.new("TextLabel", notificationFrame)
+notificationLabel.Size = UDim2.new(1, 0, 1, 0)
+notificationLabel.BackgroundTransparency = 1
+notificationLabel.Text = "Скрипт активирован!"
+notificationLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+notificationLabel.Font = Enum.Font.SourceSansBold
+notificationLabel.TextSize = isMobile and 14 or 18
+notificationLabel.TextTransparency = 0
+
+local notificationInTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -(isMobile and 100 or 150), 1, -100)})
+local notificationOutTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -(isMobile and 100 or 150), 1, -60)})
+
+local function showNotification()
+    notificationFrame.Visible = true
+    notificationInTween:Play()
+    wait(2)
+    notificationOutTween:Play()
+    notificationOutTween.Completed:Connect(function()
+        notificationFrame.Visible = false
+    end)
+end
+
 local buttons, contentFrames = {}, {}
 for i = 1, 4 do
     local button = Instance.new("TextButton", dragBar)
@@ -53,7 +86,7 @@ local creatorScroll = Instance.new("ScrollingFrame", contentFrames[1])
 creatorScroll.Size, creatorScroll.BackgroundTransparency, creatorScroll.ScrollBarThickness, creatorScroll.ScrollBarImageColor3 = UDim2.new(1, 0, 1, 0), 1, 8, Color3.fromRGB(200, 200, 200)
 Instance.new("UIListLayout", creatorScroll).Padding = UDim.new(0, 15)
 
-for i, userData in pairs({{2316299341, "z0nxx", "Создатель скрипта", "• Опыт работы: 3 года\n• Дата создания скрипта: 23 марта 2025\n• Версия скрипта: 2.0", "• Discord: z0nxx\n• Roblox профиль: <font color='#ffffff'>https://www.roblox.com/users/2316299341/profile</font>", "Создатель этого удивительного хаба!"}, {4254815427, "Lil_darkie", "@Popabebribeach - Помощник и тестер", "• Роль: Тестирование на мобильных устройствах\n• Вклад: Помощь в разработке и отладке", "Lil_darkie активно участвовал в тестировании и помог сделать скрипт удобным для мобильных игроков.", "Спасибо за помощь в проекте!"}}) do
+for i, userData in pairs({{2316299341, "z0nxx", "Создатель скрипта", "• Опыт работы: 3 года\n• Дата создания скрипта: 23 марта 2025\n• Версия скрипта: 2.0", "• Discord: z0nxx\n• Roblox профиль: <font color='#ffffff'>https://www.roblox.com/users/2316299341/profile</font>", "Создатель этого удивительного хаба!"}, {4254815427, "Lil_darkie", "@Popabebripeach - Помощник и тестер", "• Роль: Тестирование на мобильных устройствах\n• Вклад: Помощь в разработке и отладке", "Lil_darkie активно участвовал в тестировании и помог сделать скрипт удобным для мобильных игроков.", "Спасибо за помощь в проекте!"}}) do
     local frame = Instance.new("Frame", creatorScroll)
     frame.Size, frame.BackgroundColor3, frame.BorderSizePixel = UDim2.new(1, -20, 0, isMobile and 250 or 340), Color3.fromRGB(40, 40, 40), 0
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
@@ -77,7 +110,14 @@ creatorScroll.CanvasSize = UDim2.new(0, 0, 0, (isMobile and 250 or 340) * 2 + 30
 -- Вторая вкладка (FE Scripts) с прокруткой и слайдером
 local feScrollFrame = Instance.new("ScrollingFrame", contentFrames[2])
 feScrollFrame.Size, feScrollFrame.Position, feScrollFrame.BackgroundTransparency, feScrollFrame.ScrollBarThickness, feScrollFrame.ScrollBarImageColor3 = UDim2.new(1, -20, 1, -60), UDim2.new(0, 10, 0, 50), 1, 8, Color3.fromRGB(200, 200, 200)
-Instance.new("UIListLayout", feScrollFrame).Padding = UDim.new(0, 10)
+
+-- Use UIGridLayout instead of UIListLayout
+local gridLayout = Instance.new("UIGridLayout", feScrollFrame)
+gridLayout.CellSize = isMobile and UDim2.new(0, 160, 0, 40) or UDim2.new(0, 190, 0, 50)
+gridLayout.CellPadding = isMobile and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 15, 0, 15)
+gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+gridLayout.FillDirection = Enum.FillDirection.Horizontal
+gridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 -- Слайдер скорости анимаций
 local sliderFrame = Instance.new("Frame", contentFrames[2])
@@ -118,28 +158,41 @@ local feScripts = {
     {"R6", "https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"},
     {"Chat Draw", "https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"},
     {"Vape", "https://raw.githubusercontent.com/z0nxx/vape/refs/heads/main/vape.lua"},
-    {"Fling v3", "https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"}
+    {"Fling v3", "https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"},
+    {"ToolEditor", "https://raw.githubusercontent.com/z0nxx/risovalka-script/refs/heads/main/risovalka.lua"}
 }
 
 for i, data in pairs(feScripts) do
     local feButton = Instance.new("TextButton", feScrollFrame)
-    feButton.Size, feButton.Position, feButton.BackgroundColor3, feButton.TextColor3, feButton.Text, feButton.Font, feButton.TextSize, feButton.BorderSizePixel = UDim2.new(1, -20, 0, isMobile and 35 or 50), UDim2.new(0, 10, 0, (i-1)*(isMobile and 45 or 60)), Color3.fromRGB(50, 50, 50), Color3.fromRGB(200, 200, 200), data[1], Enum.Font.SourceSansSemibold, isMobile and 12 or 18, 0
+    feButton.Size = UDim2.new(0, isMobile and 160 or 190, 0, isMobile and 40 or 50) -- Size set by UIGridLayout
+    feButton.BackgroundColor3, feButton.TextColor3, feButton.Text, feButton.Font, feButton.TextSize, feButton.BorderSizePixel = Color3.fromRGB(50, 50, 50), Color3.fromRGB(200, 200, 200), data[1], Enum.Font.SourceSansSemibold, isMobile and 12 or 16, 0
+    feButton.TextWrapped = true
+    feButton.TextScaled = false
     addClickSound(feButton)
-    feButton.MouseButton1Click:Connect(function() pcall(function() loadstring(game:HttpGet(data[2], true))() end) end)
+    feButton.MouseButton1Click:Connect(function() 
+        pcall(function() loadstring(game:HttpGet(data[2], true))() end)
+        showNotification()
+    end)
     Instance.new("UICorner", feButton).CornerRadius = UDim.new(0, 8)
     local feStroke = Instance.new("UIStroke", feButton) feStroke.Thickness, feStroke.Color = 1, Color3.fromRGB(30, 30, 30)
     feButton.MouseEnter:Connect(function() 
         feButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200) 
         feButton.TextColor3 = Color3.fromRGB(0, 0, 0) 
-        TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, isMobile and 37 or 52)}):Play() 
+        TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(0, isMobile and 165 or 195, 0, isMobile and 42 or 52)}):Play() 
     end)
     feButton.MouseLeave:Connect(function() 
         feButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50) 
         feButton.TextColor3 = Color3.fromRGB(200, 200, 200) 
-        TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(1, -20, 0, isMobile and 35 or 50)}):Play() 
+        TweenService:Create(feButton, TweenInfo.new(0.2), {Size = UDim2.new(0, isMobile and 160 or 190, 0, isMobile and 40 or 50)}):Play() 
     end)
 end
-feScrollFrame.CanvasSize = UDim2.new(0, 0, 0, #feScripts * (isMobile and 45 or 60))
+
+-- Calculate CanvasSize for grid layout
+local columns = isMobile and 2 or 3 -- 2 columns on mobile, 3 on desktop
+local rows = math.ceil(#feScripts / columns)
+local cellHeight = isMobile and 40 or 50
+local cellPaddingY = isMobile and 10 or 15
+feScrollFrame.CanvasSize = UDim2.new(0, 0, 0, rows * (cellHeight + cellPaddingY) + cellPaddingY)
 
 local scrollFrame = Instance.new("ScrollingFrame", contentFrames[3])
 scrollFrame.Size, scrollFrame.Position, scrollFrame.BackgroundTransparency, scrollFrame.ScrollBarThickness, scrollFrame.ScrollBarImageColor3 = UDim2.new(1, -20, 1, -20), UDim2.new(0, 10, 0, 10), 1, 8, Color3.fromRGB(200, 200, 200)
