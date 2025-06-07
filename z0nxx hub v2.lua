@@ -66,6 +66,13 @@ local function showNotification()
 end
 
 local buttons, contentFrames = {}, {}
+local icons = {
+    "rbxassetid://7072721682", -- User icon for About Creator
+    "rbxassetid://7072719338", -- Script icon for FE Scripts
+    "rbxassetid://7072725347", -- Teleport icon for Телепорты
+    "rbxassetid://7072718346"  -- Search icon for Player Finder
+}
+
 for i = 1, 4 do
     local button = Instance.new("TextButton", dragBar)
     button.Size, button.Position, button.BackgroundColor3, button.TextColor3, button.Text, button.Font, button.TextSize, button.BorderSizePixel = isMobile and UDim2.new(0, 90, 0, 30) or UDim2.new(0, 150, 0, 40), UDim2.new(0, 5 + (i-1)*(isMobile and 95 or 155), 0, 5), Color3.fromRGB(50, 50, 50), Color3.fromRGB(200, 200, 200), i == 1 and "About Creator" or i == 2 and "FE Scripts" or i == 3 and "Телепорты" or "Player Finder", Enum.Font.SourceSansSemibold, isMobile and 14 or 18, 0
@@ -73,6 +80,9 @@ for i = 1, 4 do
     Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
     button.MouseEnter:Connect(function() button.BackgroundColor3 = Color3.fromRGB(70, 70, 70) end)
     button.MouseLeave:Connect(function() button.BackgroundColor3 = Color3.fromRGB(50, 50, 50) end)
+    
+    local icon = Instance.new("ImageLabel", button)
+    icon.Size, icon.Position, icon.BackgroundTransparency, icon.Image = UDim2.new(0, 20, 0, 20), UDim2.new(0, 10, 0.5, -10), 1, icons[i]
     
     local contentFrame = Instance.new("Frame", mainFrame)
     contentFrame.Size, contentFrame.Position, contentFrame.BackgroundColor3, contentFrame.BorderSizePixel, contentFrame.Visible = UDim2.new(1, -20, 0, isMobile and 250 or 380), UDim2.new(0, 10, 0, isMobile and 40 or 60), Color3.fromRGB(35, 35, 35), 0, i == 1
