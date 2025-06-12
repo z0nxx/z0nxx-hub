@@ -169,7 +169,8 @@ local feScripts = {
     {"Chat Draw", "https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"},
     {"Vape", "https://raw.githubusercontent.com/z0nxx/vape/refs/heads/main/vape.lua"},
     {"Fling v3", "https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"},
-    {"ToolEditor", "https://raw.githubusercontent.com/z0nxx/risovalka-script/refs/heads/main/risovalka.lua"}
+    {"ToolEditor", "https://raw.githubusercontent.com/z0nxx/risovalka-script/refs/heads/main/risovalka.lua"},
+    {"Charball", "https://raw.githubusercontent.com/Melishy/melishy-scripts/main/charball/script.lua"}
 }
 
 for i, data in pairs(feScripts) do
