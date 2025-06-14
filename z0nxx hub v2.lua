@@ -1,12 +1,12 @@
 local firstScript = game:HttpGet("https://raw.githubusercontent.com/z0nxx/zastavca/refs/heads/main/zastavca.lua")
-loadstring(firstScript)()
+pcall(function() loadstring(firstScript)() end)
 wait(10)
 
 local SoundService, Players, TweenService, UserInputService = game:GetService("SoundService"), game:GetService("Players"), game:GetService("TweenService"), game:GetService("UserInputService")
 local LocalPlayer, isMobile = Players.LocalPlayer, UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
 local startSound, clickSound = Instance.new("Sound", SoundService), Instance.new("Sound", SoundService)
-startSound.SoundId, clickSound.SoundId = "rbxassetid://95439852376197", "rbxassetid://80335956916443"
+startSound.SoundId, clickSound.SoundId = "rbxassetid://102340414126480", "rbxassetid://80335956916443"
 
 game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {Text = "z0nxx hub", Color = Color3.fromRGB(255, 255, 255), Font = Enum.Font.SourceSansBold, TextSize = 18})
 startSound:Play()
@@ -14,12 +14,19 @@ startSound:Play()
 pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua"))() end)
 wait(7)
 
-local screenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui) screenGui.ResetOnSpawn = false
+local screenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+if not screenGui then return end
+screenGui.ResetOnSpawn = false
 local mainFrameSize = isMobile and UDim2.new(0, 400, 0, 300) or UDim2.new(0, 650, 0, 450)
 local mainFrame = Instance.new("Frame", screenGui) 
 mainFrame.Size, mainFrame.Position, mainFrame.BackgroundColor3, mainFrame.BorderSizePixel, mainFrame.Visible = mainFrameSize, UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2), Color3.fromRGB(30, 30, 30), 0, false
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 local uiStroke = Instance.new("UIStroke", mainFrame) uiStroke.Thickness, uiStroke.Color, uiStroke.Transparency = 2, Color3.fromRGB(50, 50, 50), 0.8
+
+-- Create blur effect
+local blurEffect = Instance.new("BlurEffect", game:GetService("Lighting"))
+blurEffect.Size = 0
+blurEffect.Enabled = false
 
 local dragBar = Instance.new("Frame", mainFrame) 
 dragBar.Size, dragBar.BackgroundColor3, dragBar.BorderSizePixel = UDim2.new(1, 0, 0, isMobile and 40 or 60), Color3.fromRGB(40, 40, 40), 0
@@ -170,7 +177,9 @@ local feScripts = {
     {"Vape", "https://raw.githubusercontent.com/z0nxx/vape/refs/heads/main/vape.lua"},
     {"Fling v3", "https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"},
     {"ToolEditor", "https://raw.githubusercontent.com/z0nxx/risovalka-script/refs/heads/main/risovalka.lua"},
-    {"Charball", "https://raw.githubusercontent.com/Melishy/melishy-scripts/main/charball/script.lua"}
+    {"Charball", "https://raw.githubusercontent.com/Melishy/melishy-scripts/main/charball/script.lua"},
+    {"RTX", "https://raw.githubusercontent.com/z0nxx/rtx/refs/heads/main/rtxbyz0nxx.lua"},
+    {"Jerk Off", "https://raw.githubusercontent.com/z0nxx/jerk-off-by-z0nxx/refs/heads/main/jerk%20off.lua"}
 }
 
 for i, data in pairs(feScripts) do
@@ -330,21 +339,47 @@ end)
 local isOpen, isFirstLaunch = false, true
 local openTween = TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
 local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, 800)})
+local blurTweenIn = TweenService:Create(blurEffect, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = 12})
+local blurTweenOut = TweenService:Create(blurEffect, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = 0})
 
 local function playFirstLaunchAnimation()
-    mainFrame.Visible, mainFrame.Size, mainFrame.Position = true, isMobile and UDim2.new(0, 50, 0, 50) or UDim2.new(0, 100, 0, 100), UDim2.new(0.5, -mainFrame.Size.X.Offset / 2, 0.5, -mainFrame.Size.Y.Offset / 2)
-    local launchTween = TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = mainFrameSize, Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
-    launchTween:Play()
-    launchTween.Completed:Wait()
-    isFirstLaunch, isOpen, toggleButton.Text = false, true, "<"
+    pcall(function()
+        mainFrame.Visible, mainFrame.Size, mainFrame.Position = true, isMobile and UDim2.new(0, 50, 0, 50) or UDim2.new(0, 100, 0, 100), UDim2.new(0.5, -mainFrame.Size.X.Offset / 2, 0.5, -mainFrame.Size.Y.Offset / 2)
+        local launchTween = TweenService:Create(mainFrame, TweenInfo.new(0.6, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = mainFrameSize, Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
+        blurEffect.Enabled = true
+        blurTweenIn:Play()
+        launchTween:Play()
+        launchTween.Completed:Wait()
+        isFirstLaunch, isOpen, toggleButton.Text = false, true, "<"
+    end)
 end
 
 toggleButton.MouseButton1Click:Connect(function()
-    if isFirstLaunch then playFirstLaunchAnimation()
-    elseif isOpen then closeTween:Play() closeTween.Completed:Wait() toggleButton.Text, isOpen = ">", false
-    else mainFrame.Visible = true openTween:Play() openTween.Completed:Wait() toggleButton.Text, isOpen = "<", true end
+    if isFirstLaunch then 
+        playFirstLaunchAnimation()
+    elseif isOpen then 
+        closeTween:Play() 
+        blurTweenOut:Play()
+        closeTween.Completed:Connect(function()
+            blurEffect.Enabled = false
+        end)
+        closeTween.Completed:Wait() 
+        toggleButton.Text, isOpen = ">", false
+    else 
+        mainFrame.Visible = true 
+        openTween:Play() 
+        blurEffect.Enabled = true
+        blurTweenIn:Play()
+        openTween.Completed:Wait() 
+        toggleButton.Text, isOpen = "<", true 
+    end
 end)
 toggleButton.MouseEnter:Connect(function() toggleButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70) end)
 toggleButton.MouseLeave:Connect(function() toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50) end)
 
-spawn(function() wait(7) if isFirstLaunch then playFirstLaunchAnimation() end end)
+spawn(function() 
+    wait(8) 
+    if isFirstLaunch then 
+        playFirstLaunchAnimation() 
+    end 
+end)
