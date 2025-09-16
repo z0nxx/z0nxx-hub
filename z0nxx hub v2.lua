@@ -29,8 +29,6 @@ local function tryLoadScripts()
     task.spawn(function()
         loadScript("https://raw.githubusercontent.com/z0nxx/rtgfght/refs/heads/main/rtgfght.lua")
         task.wait(1)
-        loadScript("https://raw.githubusercontent.com/z0nxx/zastavca/refs/heads/main/zastavca.lua")
-        task.wait(1)
         loadScript("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua")
     end)
 end
@@ -515,7 +513,8 @@ local feScripts = {
     {"Invisible", "https://raw.githubusercontent.com/z0nxx/invise/refs/heads/main/invisible.lua"},
     {"HOUSEunbanned", "https://raw.githubusercontent.com/z0nxx/UNBANEHOUSE/refs/heads/main/houseUnbane.lua"},
     {"Fake IP Grabber", "https://pastebin.com/raw/aziWwaw2"},
-    {"Universal Emotes", "https://raw.githubusercontent.com/Eazvy/public-scripts/main/Universal_Animations_Emotes.lua"}
+    {"Universal Emotes", "https://raw.githubusercontent.com/Eazvy/public-scripts/main/Universal_Animations_Emotes.lua"},
+    {"Dance Hub", "https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"}
 }
 
 for _, data in ipairs(feScripts) do
