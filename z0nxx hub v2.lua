@@ -1,8 +1,9 @@
--- Initial script loading
+-- z0nxx Hub - Enhanced Edition (Optimized)
+
 local success, err = pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/adminka-/refs/heads/main/adminka.lua"))()
 end)
-if not success then warn("Failed to load initial script (adminka.lua): " .. tostring(err)) end
+if not success then warn("Failed to load adminka.lua: " .. tostring(err)) end
 
 local HttpService = game:GetService("HttpService")
 local SoundService = game:GetService("SoundService")
@@ -13,45 +14,40 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
--- Function to load external scripts
+-- Load external script
 local function loadScript(url)
     local success, result = pcall(function()
         local response = game:HttpGet(url, true)
         return response and response ~= "" and loadstring(response)() or nil
     end)
-    if not success then
-        warn("Error loading script from " .. url .. ": " .. tostring(result))
-        return false
-    end
+    if not success then warn("Error loading " .. url .. ": " .. tostring(result)) return false end
     return true
 end
 
 -- Load additional scripts
-local function tryLoadScripts()
-    task.spawn(function()
-        loadScript("https://raw.githubusercontent.com/z0nxx/rtgfght/refs/heads/main/rtgfght.lua")
-        task.wait(1)
-        loadScript("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua")
-    end)
-end
+task.spawn(function()
+    loadScript("https://raw.githubusercontent.com/z0nxx/rtgfght/refs/heads/main/rtgfght.lua")
+    task.wait(1)
+    loadScript("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua")
+end)
 
--- Create main ScreenGui
+-- Create ScreenGui
 local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui", 5))
 screenGui.Name = "Z0nxxHub"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 
--- Create blur effect
+-- Blur effect
 local blurEffect = Instance.new("BlurEffect", game:GetService("Lighting"))
 blurEffect.Size = 0
 blurEffect.Enabled = false
 
--- Optimized frame sizes
+-- Main frame
 local mainFrameSize = isMobile and UDim2.new(0.9, 0, 0.8, 0) or UDim2.new(0, 800, 0, 500)
 local mainFrame = Instance.new("Frame", screenGui)
 mainFrame.Size = mainFrameSize
 mainFrame.Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 15, 35) -- Darker purple theme
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 15, 35)
 mainFrame.BackgroundTransparency = 0.2
 mainFrame.Visible = false
 mainFrame.ClipsDescendants = true
@@ -74,8 +70,7 @@ local avatarCircle = Instance.new("ImageButton", headerFrame)
 avatarCircle.Size = UDim2.new(0, isMobile and 32 or 50, 0, isMobile and 32 or 50)
 avatarCircle.Position = UDim2.new(0, 8, 0, isMobile and 4 or 5)
 avatarCircle.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-avatarCircle.Image = "rbxassetid://94562916053131"
-avatarCircle.Image = avatarCircle.Image == "" and "rbxasset://textures/ui/GuiImagePlaceholder.png" or avatarCircle.Image
+avatarCircle.Image = "rbxassetid://94562916053131" or "rbxasset://textures/ui/GuiImagePlaceholder.png"
 avatarCircle.ScaleType = Enum.ScaleType.Fit
 avatarCircle.ZIndex = 3
 Instance.new("UICorner", avatarCircle).CornerRadius = UDim.new(1, 0)
@@ -83,7 +78,7 @@ local avatarStroke = Instance.new("UIStroke", avatarCircle)
 avatarStroke.Thickness = 1
 avatarStroke.Color = Color3.fromRGB(70, 30, 90)
 
--- Header label with typing animation and gradient
+-- Header label
 local headerLabel = Instance.new("TextLabel", headerFrame)
 headerLabel.Size = UDim2.new(1, -(isMobile and 48 or 70), 1, 0)
 headerLabel.Position = UDim2.new(0, isMobile and 40 or 60, 0, 0)
@@ -110,11 +105,7 @@ task.spawn(function()
         task.wait(3)
     end
 end)
-
--- Apply typing animation to header
-task.spawn(function()
-    typeText(headerLabel, "z0nxx Hub", 0.1)
-end)
+task.spawn(function() typeText(headerLabel, "z0nxx Hub", 0.1) end)
 
 -- Close button
 local closeButton = Instance.new("TextButton", headerFrame)
@@ -126,11 +117,9 @@ closeButton.Font = Enum.Font.SourceSansBold
 closeButton.TextSize = isMobile and 8 or 14
 closeButton.ZIndex = 3
 Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 5)
-task.spawn(function()
-    typeText(closeButton, "X", 0.1)
-end)
+task.spawn(function() typeText(closeButton, "X", 0.1) end)
 
--- Sound creation function
+-- Utility functions
 local function createSound(soundId, parent)
     local sound = Instance.new("Sound", parent or SoundService)
     sound.SoundId = "rbxassetid://" .. tostring(soundId)
@@ -138,7 +127,6 @@ local function createSound(soundId, parent)
     return sound
 end
 
--- Typing animation function
 local function typeText(label, text, speed)
     label.Text = ""
     for i = 1, #text do
@@ -147,23 +135,20 @@ local function typeText(label, text, speed)
     end
 end
 
--- Notification function with typing animation
 local function showNotification(message)
     local notificationFrame = screenGui:FindFirstChild("NotificationFrame")
-    if not notificationFrame then return end
-    local notificationLabel = notificationFrame:FindFirstChild("NotificationLabel")
-    if not notificationLabel then return end
-    task.spawn(function()
-        typeText(notificationLabel, message or "Скрипт активирован!", 0.05)
-    end)
-    notificationFrame.Visible = true
-    local notificationInTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 1, isMobile and -60 or -80)})
-    local notificationOutTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, 0, 1, isMobile and -40 or -60)})
-    notificationInTween:Play()
-    task.wait(2)
-    notificationOutTween:Play()
-    notificationOutTween.Completed:Wait()
-    notificationFrame.Visible = false
+    local notificationLabel = notificationFrame and notificationFrame:FindFirstChild("NotificationLabel")
+    if notificationLabel then
+        task.spawn(function() typeText(notificationLabel, message or "Скрипт активирован!", 0.05) end)
+        notificationFrame.Visible = true
+        local inTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 1, isMobile and -60 or -80)})
+        local outTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, 0, 1, isMobile and -40 or -60)})
+        inTween:Play()
+        task.wait(2)
+        outTween:Play()
+        outTween.Completed:Wait()
+        notificationFrame.Visible = false
+    end
 end
 
 -- Close button functionality
@@ -225,7 +210,7 @@ contentFrame.BackgroundTransparency = 1
 contentFrame.ClipsDescendants = true
 contentFrame.ZIndex = 2
 
--- Tabs and buttons
+-- Tabs
 local tabs = {"О Создателе", "FE Скрипты", "Телепорты", "Поиск Игроков", "Настройки"}
 local buttons, contentFrames = {}, {}
 
@@ -233,7 +218,7 @@ local tabListLayout = Instance.new("UIListLayout", sidebar)
 tabListLayout.FillDirection = Enum.FillDirection.Vertical
 tabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 tabListLayout.Padding = UDim.new(0, isMobile and 3 or 6)
-tabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center -- Center buttons vertically
+tabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 -- Secret frame
@@ -250,7 +235,6 @@ local secretStroke = Instance.new("UIStroke", secretFrame)
 secretStroke.Thickness = 1
 secretStroke.Color = Color3.fromRGB(70, 30, 90)
 
--- Secret label with typing animation
 local secretLabel = Instance.new("TextLabel", secretFrame)
 secretLabel.Size = UDim2.new(1, -8, 1, -8)
 secretLabel.Position = UDim2.new(0, 4, 0, 4)
@@ -266,32 +250,23 @@ secretLabel.TextYAlignment = Enum.TextYAlignment.Center
 secretLabel.ZIndex = 3
 task.spawn(function()
     typeText(secretLabel, string.format(
-        "<font size='%d' face='SourceSansBold'>Поздравляем!</font>\n\n" ..
-        "Ты нашёл пасхалку! 🥚\n" ..
-        "Это секретная вкладка z0nxx Hub!\n\n" ..
-        "Присоединяйся к нашему Telegram-каналу:\n" ..
-        "<font color='#00b7eb'><a href='https://t.me/z0nxxHUB'>https://t.me/z0nxxHUB</a></font>\n\n" ..
-        "А также:\n• Получай секретные обновления\n• Участвуй в розыгрышах\n• Стань частью комьюнити!",
+        "<font size='%d' face='SourceSansBold'>Поздравляем!</font>\n\nТы нашёл пасхалку! 🥚\nЭто секретная вкладка z0nxx Hub!\n\nПрисоединяйся к Telegram:\n<font color='#00b7eb'><a href='https://t.me/z0nxxHUB'>https://t.me/z0nxxHUB</a></font>\n\nА также:\n• Получай обновления\n• Участвуй в розыгрышах\n• Стань частью комьюнити!",
         isMobile and 10 or 16
     ), 0.03)
 end)
 TweenService:Create(secretLabel, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {TextTransparency = 0.2}):Play()
 
--- Avatar circle click handler
+-- Avatar circle handler
 avatarCircle.MouseButton1Click:Connect(function()
     mainFrame.Visible = true
     blurEffect.Enabled = true
-    local blurTweenIn = TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 12})
-    blurTweenIn:Play()
-    for _, frame in ipairs(contentFrames) do
-        frame.Visible = false
-    end
+    TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 12}):Play()
+    for _, frame in ipairs(contentFrames) do frame.Visible = false end
     secretFrame.Visible = true
     for _, btn in ipairs(buttons) do
         TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play()
     end
-    local openTween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
-    openTween:Play()
+    TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)}):Play()
     showNotification("Пасхалка найдена!")
     local clickSound = createSound("9120386446")
     if clickSound then clickSound:Play() end
@@ -312,9 +287,7 @@ for i, tabName in ipairs(tabs) do
     local buttonStroke = Instance.new("UIStroke", button)
     buttonStroke.Thickness = 1
     buttonStroke.Color = Color3.fromRGB(70, 30, 90)
-    task.spawn(function()
-        typeText(button, tabName, 0.05)
-    end)
+    task.spawn(function() typeText(button, tabName, 0.05) end)
 
     local contentFrameTab = Instance.new("Frame", contentFrame)
     contentFrameTab.Size = UDim2.new(1, -8, 1, -8)
@@ -328,39 +301,31 @@ for i, tabName in ipairs(tabs) do
     table.insert(contentFrames, contentFrameTab)
 
     button.MouseButton1Click:Connect(function()
-        for j, frame in ipairs(contentFrames) do
-            frame.Visible = (j == i)
-        end
+        for j, frame in ipairs(contentFrames) do frame.Visible = (j == i) end
         secretFrame.Visible = false
         for j, btn in ipairs(buttons) do
             TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = (j == i) and Color3.fromRGB(55, 35, 75) or Color3.fromRGB(35, 25, 45)}):Play()
         end
         if i == 2 then
-            -- Animate FE Scripts tab buttons
             local feButtons = contentFrames[2]:FindFirstChild("FEScrollFrame"):GetChildren()
             for j, feButton in ipairs(feButtons) do
                 if feButton:IsA("TextButton") then
                     feButton.Position = UDim2.new(feButton.Position.X.Scale, feButton.Position.X.Offset, 1, 100)
                     feButton.TextTransparency = 1
                     feButton.BackgroundTransparency = 1
-                    local slideTween = TweenService:Create(feButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {Position = feButton.Position + UDim2.new(0, 0, -1, -100)})
-                    local fadeTween = TweenService:Create(feButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {TextTransparency = 0, BackgroundTransparency = 0})
-                    slideTween:Play()
-                    fadeTween:Play()
+                    TweenService:Create(feButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {Position = feButton.Position + UDim2.new(0, 0, -1, -100)}):Play()
+                    TweenService:Create(feButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {TextTransparency = 0, BackgroundTransparency = 0}):Play()
                 end
             end
         elseif i == 3 then
-            -- Animate Teleport tab buttons
             local teleportButtons = contentFrames[3]:GetChildren()
             for j, tpButton in ipairs(teleportButtons) do
                 if tpButton:IsA("TextButton") then
                     tpButton.Position = UDim2.new(tpButton.Position.X.Scale, tpButton.Position.X.Offset, 1, 100)
                     tpButton.TextTransparency = 1
                     tpButton.BackgroundTransparency = 1
-                    local slideTween = TweenService:Create(tpButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {Position = tpButton.Position + UDim2.new(0, 0, -1, -100)})
-                    local fadeTween = TweenService:Create(tpButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {TextTransparency = 0, BackgroundTransparency = 0})
-                    slideTween:Play()
-                    fadeTween:Play()
+                    TweenService:Create(tpButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {Position = tpButton.Position + UDim2.new(0, 0, -1, -100)}):Play()
+                    TweenService:Create(tpButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {TextTransparency = 0, BackgroundTransparency = 0}):Play()
                 end
             end
         elseif i == 4 then
@@ -390,27 +355,25 @@ local creatorListLayout = Instance.new("UIListLayout", creatorScroll)
 creatorListLayout.Padding = UDim.new(0, isMobile and 4 or 6)
 creatorListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- Creator data
 local creatorData = {
     {
         UserId = 2316299341,
         Name = "z0nxx",
         Title = "Создатель скрипта",
-        Info = "• Опыт работы: 3 года\n• Дата создания: 23.03.2025\n• Версия: 2.0",
+        Info = "• Опыт: 3 года\n• Создан: 23.03.2025\n• Версия: 2.0",
         Contact = "• Discord: z0nxx\n• Roblox: https://www.roblox.com/users/2316299341/profile",
-        Description = "Создатель этого удивительного хаба!"
+        Description = "Создатель хаба!"
     },
     {
         UserId = 4254815427,
         Name = "Lil_darkie",
         Title = "@Popabebripeach - Тестировщик",
-        Info = "• Роль: Тестирование на мобильных\n• Вклад: Отладка и оптимизация",
-        Contact = "Lil_darkie помог сделать скрипт удобным для мобильных игроков.",
-        Description = "Спасибо за помощь в проекте!"
+        Info = "• Роль: Тестирование\n• Вклад: Отладка",
+        Contact = "Помог сделать скрипт удобным для мобильных.",
+        Description = "Спасибо за помощь!"
     }
 }
 
--- Create creator cards
 for _, data in ipairs(creatorData) do
     local card = Instance.new("Frame", creatorScroll)
     card.Size = UDim2.new(1, -8, 0, isMobile and 160 or 280)
@@ -453,12 +416,7 @@ for _, data in ipairs(creatorData) do
     task.spawn(function()
         typeText(info, string.format(
             "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>%s</font>\n\n%s\n\n%s\n\n%s",
-            isMobile and 8 or 14,
-            data.Name,
-            data.Title,
-            data.Info,
-            data.Contact,
-            data.Description
+            isMobile and 8 or 14, data.Name, data.Title, data.Info, data.Contact, data.Description
         ), 0.03)
     end)
 end
@@ -485,7 +443,6 @@ feGridLayout.CellPadding = isMobile and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 
 feGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
 feGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- FE Scripts
 local feScripts = {
     {"Fly (PC)", "https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"},
     {"R4D", "https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script"},
@@ -510,7 +467,6 @@ local feScripts = {
     {"Dance Hub", "https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"}
 }
 
--- Create FE script buttons
 for _, data in ipairs(feScripts) do
     local feButton = Instance.new("TextButton", feScrollFrame)
     feButton.Size = isMobile and UDim2.new(0, 120, 0, 40) or UDim2.new(0, 180, 0, 50)
@@ -526,16 +482,10 @@ for _, data in ipairs(feScripts) do
     local feStroke = Instance.new("UIStroke", feButton)
     feStroke.Thickness = 1.5
     feStroke.Color = Color3.fromRGB(70, 30, 90)
-    task.spawn(function()
-        typeText(feButton, data[1], 0.05)
-    end)
+    task.spawn(function() typeText(feButton, data[1], 0.05) end)
 
     feButton.MouseButton1Click:Connect(function()
-        if loadScript(data[2]) then
-            showNotification(data[1] .. " активирован!")
-        else
-            showNotification("Ошибка активации " .. data[1])
-        end
+        if loadScript(data[2]) then showNotification(data[1] .. " активирован!") else showNotification("Ошибка активации " .. data[1]) end
     end)
     feButton.MouseEnter:Connect(function()
         TweenService:Create(feButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55), Size = isMobile and UDim2.new(0, 124, 0, 42) or UDim2.new(0, 184, 0, 52)}):Play()
@@ -544,7 +494,6 @@ for _, data in ipairs(feScripts) do
         TweenService:Create(feButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45), Size = isMobile and UDim2.new(0, 120, 0, 40) or UDim2.new(0, 180, 0, 50)}):Play()
     end)
 end
-
 local columns = isMobile and 2 or 3
 local rows = math.ceil(#feScripts / columns)
 feScrollFrame.CanvasSize = UDim2.new(0, 0, 0, (rows * (isMobile and 50 or 65) + (isMobile and 10 or 15)))
@@ -561,7 +510,6 @@ local teleportLayout = Instance.new("UIListLayout", teleportFrame)
 teleportLayout.Padding = UDim.new(0, isMobile and 4 or 6)
 teleportLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- Teleport locations
 local savedPositions = {}
 local teleportLocations = {
     {Name = "Спавн", Position = Vector3.new(-22.2000103, 2.4087739, 15.4999981)},
@@ -569,7 +517,6 @@ local teleportLocations = {
     {Name = "AFK Зона", Position = Vector3.new(333.547943, 89.6000061, 107.741913), Angle = CFrame.Angles(0, math.pi, 0)}
 }
 
--- Create teleport buttons
 for i = 1, 4 do
     local button = Instance.new("TextButton", teleportFrame)
     button.Size = UDim2.new(1, -8, 0, isMobile and 28 or 36)
@@ -585,7 +532,7 @@ for i = 1, 4 do
     buttonStroke.Thickness = 1
     buttonStroke.Color = Color3.fromRGB(70, 30, 90)
     task.spawn(function()
-        typeText(button, i <= #teleportLocations and teleportLocations[i].Name or (i == 4 and "Сохранить Точку" or "Телепорт к Сохранённой Точке"), 0.05)
+        typeText(button, i <= #teleportLocations and teleportLocations[i].Name or (i == 4 and "Сохранить Точку" or "Телепорт к Сохранённой"), 0.05)
     end)
 
     button.MouseButton1Click:Connect(function()
@@ -598,18 +545,16 @@ for i = 1, 4 do
                 showNotification("Телепорт в " .. teleportLocations[i].Name)
             elseif i == 4 then
                 table.insert(savedPositions, character.HumanoidRootPart.Position)
-                task.spawn(function()
-                    typeText(button, "Сохранить Точку (" .. #savedPositions .. ")", 0.05)
-                end)
+                task.spawn(function() typeText(button, "Сохранить Точку (" .. #savedPositions .. ")", 0.05) end)
                 showNotification("Точка сохранена!")
             elseif i == 5 and #savedPositions > 0 then
                 character.HumanoidRootPart.CFrame = CFrame.new(savedPositions[#savedPositions])
-                showNotification("Телепорт к последней сохранённой точке")
+                showNotification("Телепорт к сохранённой точке")
             else
                 showNotification("Нет сохранённых точек!")
             end
         else
-            showNotification("Ошибка: Ваш персонаж не загружен!")
+            showNotification("Ошибка: Персонаж не загружен!")
         end
     end)
     button.MouseEnter:Connect(function()
@@ -640,9 +585,7 @@ playerListTitle.TextSize = isMobile and 8 or 14
 playerListTitle.TextWrapped = true
 playerListTitle.ZIndex = 2
 Instance.new("UICorner", playerListTitle).CornerRadius = UDim.new(0, 8)
-task.spawn(function()
-    typeText(playerListTitle, "Игроки", 0.05)
-end)
+task.spawn(function() typeText(playerListTitle, "Игроки", 0.05) end)
 
 local playerListScroll = Instance.new("ScrollingFrame", playerListFrame)
 playerListScroll.Size = UDim2.new(1, 0, 1, isMobile and -28 or -40)
@@ -686,9 +629,7 @@ playerInfo.TextXAlignment = Enum.TextXAlignment.Left
 playerInfo.TextYAlignment = Enum.TextYAlignment.Top
 playerInfo.Text = ""
 playerInfo.RichText = true
-task.spawn(function()
-    typeText(playerInfo, "Выберите игрока.", 0.05)
-end)
+task.spawn(function() typeText(playerInfo, "Выберите игрока.", 0.05) end)
 
 local teleportButton = Instance.new("TextButton", playerInfoFrame)
 teleportButton.Size = isMobile and UDim2.new(0, 60, 0, 24) or UDim2.new(0, 120, 0, 32)
@@ -702,9 +643,7 @@ teleportButton.TextWrapped = true
 teleportButton.Visible = false
 teleportButton.ZIndex = 2
 Instance.new("UICorner", teleportButton).CornerRadius = UDim.new(0, 6)
-task.spawn(function()
-    typeText(teleportButton, "Телепорт", 0.05)
-end)
+task.spawn(function() typeText(teleportButton, "Телепорт", 0.05) end)
 
 -- Settings frame
 local settingsFrame = Instance.new("ScrollingFrame", contentFrames[5])
@@ -718,14 +657,12 @@ local settingsLayout = Instance.new("UIListLayout", settingsFrame)
 settingsLayout.Padding = UDim.new(0, isMobile and 4 or 6)
 settingsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- Settings options
 local settingsOptions = {
     {Name = "Размер GUI", Min = 0.5, Max = 1.5, Default = 1, Step = 0.1},
     {Name = "Прозрачность", Min = 0, Max = 0.5, Default = 0.2, Step = 0.05},
     {Name = "Скорость анимации", Min = 0.1, Max = 1, Default = 0.3, Step = 0.05}
 }
 
--- Create settings sliders
 for i, setting in ipairs(settingsOptions) do
     local settingFrame = Instance.new("Frame", settingsFrame)
     settingFrame.Size = UDim2.new(1, -8, 0, isMobile and 50 or 70)
@@ -748,9 +685,7 @@ for i, setting in ipairs(settingsOptions) do
     settingLabel.TextWrapped = true
     settingLabel.TextXAlignment = Enum.TextXAlignment.Left
     settingLabel.ZIndex = 2
-    task.spawn(function()
-        typeText(settingLabel, setting.Name .. ": " .. tostring(setting.Default), 0.05)
-    end)
+    task.spawn(function() typeText(settingLabel, setting.Name .. ": " .. tostring(setting.Default), 0.05) end)
 
     local sliderFrame = Instance.new("Frame", settingFrame)
     sliderFrame.Size = UDim2.new(1, -16, 0, isMobile and 10 or 15)
@@ -794,9 +729,7 @@ for i, setting in ipairs(settingsOptions) do
             value = math.floor(value / setting.Step + 0.5) * setting.Step
             sliderFill.Size = UDim2.new(relativeX, 0, 1, 0)
             sliderButton.Position = UDim2.new(relativeX, -6, 0, -1)
-            task.spawn(function()
-                typeText(settingLabel, setting.Name .. ": " .. string.format("%.2f", value), 0.05)
-            end)
+            task.spawn(function() typeText(settingLabel, setting.Name .. ": " .. string.format("%.2f", value), 0.05) end)
             if i == 1 then
                 mainFrame.Size = mainFrameSize * value
                 mainFrame.Position = UDim2.new(0.5, -mainFrameSize.X.Offset * value / 2, 0.5, -mainFrameSize.Y.Offset * value / 2)
@@ -815,7 +748,7 @@ for i, setting in ipairs(settingsOptions) do
 end
 settingsFrame.CanvasSize = UDim2.new(0, 0, 0, #settingsOptions * (isMobile and 54 or 76))
 
--- Wait for character function
+-- Wait for character
 local function waitForCharacter(player, timeout)
     timeout = timeout or 3
     local startTime = tick()
@@ -828,25 +761,20 @@ local function waitForCharacter(player, timeout)
     return nil
 end
 
-local selectedPlayer = nil
-local selectedPlayerName = nil
+local selectedPlayer, selectedPlayerName = nil, nil
 
 -- Teleport button handler
 teleportButton.MouseButton1Click:Connect(function()
     local character = LocalPlayer.Character
     if not character or not character:FindFirstChild("HumanoidRootPart") then
-        task.spawn(function()
-            typeText(playerInfo, "Выберите игрока.\n\n<font color='#ff5555'>Ошибка: Ваш персонаж не загружен!</font>", 0.03)
-        end)
-        showNotification("Ошибка: Ваш персонаж не загружен!")
+        task.spawn(function() typeText(playerInfo, "Выберите игрока.\n\n<font color='#ff5555'>Ошибка: Персонаж не загружен!</font>", 0.03) end)
+        showNotification("Ошибка: Персонаж не загружен!")
         return
     end
     if not selectedPlayer or not Players:FindFirstChild(selectedPlayer.Name) then
-        task.spawn(function()
-            typeText(playerInfo, "Выберите игрока.\n\n<font color='#ff5555'>Ошибка: Игрок не выбран или не в игре!</font>", 0.03)
-        end)
+        task.spawn(function() typeText(playerInfo, "Выберите игрока.\n\n<font color='#ff5555'>Ошибка: Игрок не выбран!</font>", 0.03) end)
         showNotification("Ошибка: Игрок не выбран или не в игре!")
-        warn("Teleport failed: selectedPlayer is nil or player left (" .. (selectedPlayerName or "nil") .. ")")
+        warn("Teleport failed: " .. (selectedPlayerName or "nil"))
         selectedPlayer = nil
         selectedPlayerName = nil
         teleportButton.Visible = false
@@ -858,10 +786,7 @@ teleportButton.MouseButton1Click:Connect(function()
         task.spawn(function()
             typeText(playerInfo, string.format(
                 "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: Да\n\n<font color='#00ff00'>Телепорт успешен!</font>",
-                isMobile and 8 or 14,
-                selectedPlayer.DisplayName,
-                selectedPlayer.Name,
-                selectedPlayer.UserId,
+                isMobile and 8 or 14, selectedPlayer.DisplayName, selectedPlayer.Name, selectedPlayer.UserId,
                 selectedPlayer.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - selectedPlayer.AccountAge * 86400) or "Неизвестно",
                 selectedPlayer.Team and selectedPlayer.Team.Name or "Без команды"
             ), 0.03)
@@ -870,17 +795,14 @@ teleportButton.MouseButton1Click:Connect(function()
     else
         task.spawn(function()
             typeText(playerInfo, string.format(
-                "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: Нет\n\n<font color='#ff5555'>Ошибка: Персонаж игрока не загружен!</font>",
-                isMobile and 8 or 14,
-                selectedPlayer.DisplayName,
-                selectedPlayer.Name,
-                selectedPlayer.UserId,
+                "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: Нет\n\n<font color='#ff5555'>Ошибка: Персонаж не загружен!</font>",
+                isMobile and 8 or 14, selectedPlayer.DisplayName, selectedPlayer.Name, selectedPlayer.UserId,
                 selectedPlayer.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - selectedPlayer.AccountAge * 86400) or "Неизвестно",
                 selectedPlayer.Team and selectedPlayer.Team.Name or "Без команды"
             ), 0.03)
         end)
         showNotification("Ошибка: Персонаж игрока не загружен!")
-        warn("Teleport failed: No valid character or HumanoidRootPart for " .. selectedPlayer.Name)
+        warn("Teleport failed: No valid character for " .. selectedPlayer.Name)
     end
 end)
 teleportButton.MouseEnter:Connect(function()
@@ -890,7 +812,7 @@ teleportButton.MouseLeave:Connect(function()
     TweenService:Create(teleportButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 30, 90)}):Play()
 end)
 
--- Theme toggle button
+-- Theme toggle
 local themeToggle = Instance.new("TextButton", contentFrames[1])
 themeToggle.Size = UDim2.new(0, isMobile and 60 or 90, 0, isMobile and 24 or 30)
 themeToggle.Position = UDim2.new(0.5, -(isMobile and 30 or 45), 1, -(isMobile and 28 or 36))
@@ -902,18 +824,14 @@ themeToggle.TextSize = isMobile and 7 or 12
 themeToggle.TextWrapped = true
 themeToggle.ZIndex = 2
 Instance.new("UICorner", themeToggle).CornerRadius = UDim.new(0, 6)
-task.spawn(function()
-    typeText(themeToggle, "Светлая Тема", 0.05)
-end)
+task.spawn(function() typeText(themeToggle, "Светлая Тема", 0.05) end)
 
--- Theme toggle logic
 local isDark = true
 themeToggle.MouseButton1Click:Connect(function()
     isDark = not isDark
     local newMainColor = isDark and Color3.fromRGB(25, 15, 35) or Color3.fromRGB(200, 200, 200)
     local newContentColor = isDark and Color3.fromRGB(35, 25, 45) or Color3.fromRGB(180, 180, 180)
     local newTextColor = isDark and Color3.fromRGB(190, 140, 245) or Color3.fromRGB(30, 30, 30)
-
     TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundColor3 = newMainColor}):Play()
     TweenService:Create(sidebar, TweenInfo.new(0.3), {BackgroundColor3 = isDark and Color3.fromRGB(30, 20, 40) or Color3.fromRGB(220, 220, 220)}):Play()
     TweenService:Create(headerFrame, TweenInfo.new(0.3), {BackgroundColor3 = isDark and Color3.fromRGB(30, 20, 40) or Color3.fromRGB(220, 220, 220)}):Play()
@@ -923,9 +841,7 @@ themeToggle.MouseButton1Click:Connect(function()
     for _, btn in ipairs(buttons) do
         TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = newTextColor}):Play()
     end
-    task.spawn(function()
-        typeText(themeToggle, isDark and "Светлая Тема" or "Тёмная Тема", 0.05)
-    end)
+    task.spawn(function() typeText(themeToggle, isDark and "Светлая Тема" or "Тёмная Тема", 0.05) end)
     headerLabel.TextColor3 = newTextColor
 end)
 
@@ -935,15 +851,11 @@ local function updatePlayerList()
     selectedPlayer = nil
     selectedPlayerName = nil
     teleportButton.Visible = false
-    task.spawn(function()
-        typeText(playerInfo, "Выберите игрока.", 0.05)
-    end)
+    task.spawn(function() typeText(playerInfo, "Выберите игрока.", 0.05) end)
     avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-
     for _, child in ipairs(playerListScroll:GetChildren()) do
         if child:IsA("TextButton") then child:Destroy() end
     end
-
     for i, player in ipairs(Players:GetPlayers()) do
         local playerButton = Instance.new("TextButton", playerListScroll)
         playerButton.Size = UDim2.new(1, -4, 0, isMobile and 24 or 32)
@@ -955,9 +867,7 @@ local function updatePlayerList()
         playerButton.TextWrapped = true
         playerButton.ZIndex = 2
         Instance.new("UICorner", playerButton).CornerRadius = UDim.new(0, 5)
-        task.spawn(function()
-            typeText(playerButton, player.Name, 0.05)
-        end)
+        task.spawn(function() typeText(playerButton, player.Name, 0.05) end)
 
         playerButton.MouseButton1Click:Connect(function()
             selectedPlayer = player
@@ -965,10 +875,6 @@ local function updatePlayerList()
             warn("Selected player: " .. player.Name)
             local userId = player.UserId
             local creationDate = player.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - player.AccountAge * 86400) or "Неизвестно"
-            local displayName = player.DisplayName
-            local username = player.Name
-            local team = player.Team and player.Team.Name or "Без команды"
-            local isInGame = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and "Да" or "Нет"
             local success, thumbnail = pcall(function()
                 return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size48x48 or Enum.ThumbnailSize.Size150x150)
             end)
@@ -976,13 +882,9 @@ local function updatePlayerList()
             task.spawn(function()
                 typeText(playerInfo, string.format(
                     "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: %s",
-                    isMobile and 8 or 14,
-                    displayName,
-                    username,
-                    userId,
-                    creationDate,
-                    team,
-                    isInGame
+                    isMobile and 8 or 14, player.DisplayName, player.Name, userId, creationDate,
+                    player.Team and player.Team.Name or "Без команды",
+                    player.Character and player.Character:FindFirstChild("HumanoidRootPart") and "Да" or "Нет"
                 ), 0.03)
             end)
             teleportButton.Visible = true
@@ -993,19 +895,17 @@ local function updatePlayerList()
         playerButton.MouseLeave:Connect(function()
             TweenService:Create(playerButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play()
         end)
-
         if previousSelectedPlayerName and player.Name == previousSelectedPlayerName then
             playerButton:InputBegan({UserInputType = Enum.UserInputType.MouseButton1})
         end
     end
     playerListScroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * (isMobile and 26 or 35))
 end
-
 if buttons[4] then buttons[4].MouseButton1Click:Connect(updatePlayerList) end
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
--- Toggle button with gradient and press animation
+-- Toggle button
 local toggleButton = Instance.new("TextButton", screenGui)
 toggleButton.Size = UDim2.new(0, isMobile and 48 or 70, 0, isMobile and 48 or 70)
 toggleButton.Position = UDim2.new(0, 8, 0.5, -(isMobile and 24 or 35))
@@ -1024,15 +924,13 @@ local toggleButtonImage = Instance.new("ImageLabel", toggleButton)
 toggleButtonImage.Size = UDim2.new(1, -2, 1, -2)
 toggleButtonImage.Position = UDim2.new(0, 1, 0, 1)
 toggleButtonImage.BackgroundTransparency = 1
-toggleButtonImage.Image = "rbxassetid://71196235690019"
-toggleButtonImage.Image = toggleButtonImage.Image == "" and "rbxasset://textures/ui/GuiImagePlaceholder.png" or toggleButtonImage.Image
+toggleButtonImage.Image = "rbxassetid://71196235690019" or "rbxasset://textures/ui/GuiImagePlaceholder.png"
 toggleButtonImage.ScaleType = Enum.ScaleType.Fit
 Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(1, 0)
 Instance.new("UICorner", toggleButtonImage).CornerRadius = UDim.new(1, 0)
 local toggleStroke = Instance.new("UIStroke", toggleButton)
 toggleStroke.Thickness = 1.5
 toggleStroke.Color = Color3.fromRGB(90, 40, 110)
--- Animate gradient rotation
 task.spawn(function()
     while true do
         TweenService:Create(toggleGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 405}):Play()
@@ -1042,7 +940,6 @@ task.spawn(function()
     end
 end)
 
--- Toggle button press animation
 toggleButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, isMobile and 44 or 65, 0, isMobile and 44 or 65)}):Play()
@@ -1054,7 +951,6 @@ toggleButton.InputEnded:Connect(function(input)
     end
 end)
 
--- Toggle button dragging
 local btnDragging, btnDragStart, btnStartPos
 toggleButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -1102,9 +998,7 @@ notificationLabel.TextXAlignment = Enum.TextXAlignment.Center
 notificationLabel.TextYAlignment = Enum.TextYAlignment.Center
 notificationLabel.ZIndex = 5
 notificationLabel.Name = "NotificationLabel"
-task.spawn(function()
-    typeText(notificationLabel, "Скрипт активирован!", 0.05)
-end)
+task.spawn(function() typeText(notificationLabel, "Скрипт активирован!", 0.05) end)
 
 -- Toggle main frame
 local isOpen, isFirstLaunch = false, true
@@ -1113,7 +1007,6 @@ local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.Easing
 local blurTweenIn = TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 12})
 local blurTweenOut = TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = 0})
 
--- First launch animation
 local function playFirstLaunchAnimation()
     local startSound = createSound("9120386446")
     if startSound then startSound:Play() end
@@ -1135,7 +1028,6 @@ local function playFirstLaunchAnimation()
     isOpen = true
 end
 
--- Toggle button handler
 toggleButton.MouseButton1Click:Connect(function()
     if isFirstLaunch then
         playFirstLaunchAnimation()
@@ -1166,11 +1058,8 @@ end)
 -- Add click sounds
 local function addClickSound(button)
     local clickSound = createSound("9120386446")
-    if clickSound then
-        button.MouseButton1Click:Connect(function() clickSound:Play() end)
-    end
+    if clickSound then button.MouseButton1Click:Connect(function() clickSound:Play() end) end
 end
-
 addClickSound(closeButton)
 addClickSound(themeToggle)
 addClickSound(teleportButton)
@@ -1208,6 +1097,5 @@ end
 task.spawn(function()
     task.wait(2)
     playFirstLaunchAnimation()
-    tryLoadScripts()
     warn("z0nxx Hub loaded successfully")
 end)
