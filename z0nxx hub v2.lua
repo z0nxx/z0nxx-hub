@@ -1,5 +1,3 @@
--- z0nxx Hub - Enhanced Edition (Optimized)
-
 local success, err = pcall(function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/adminka-/refs/heads/main/adminka.lua"))()
 end)
@@ -464,7 +462,8 @@ local feScripts = {
     {"HOUSEunbanned", "https://raw.githubusercontent.com/z0nxx/UNBANEHOUSE/refs/heads/main/houseUnbane.lua"},
     {"Fake IP Grabber", "https://pastebin.com/raw/aziWwaw2"},
     {"Universal Emotes", "https://raw.githubusercontent.com/Eazvy/public-scripts/main/Universal_Animations_Emotes.lua"},
-    {"Dance Hub", "https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"}
+    {"Dance Hub", "https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"},
+    {"Halloween Update", "https://raw.githubusercontent.com/z0nxx/halloweeen-ivent/refs/heads/main/ibent.lua"}
 }
 
 for _, data in ipairs(feScripts) do
