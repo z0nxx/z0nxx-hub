@@ -1,1100 +1,783 @@
-local success, err = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/adminka-/refs/heads/main/adminka.lua"))()
-end)
-if not success then warn("Failed to load adminka.lua: " .. tostring(err)) end
+local Players=game:GetService("Players")
+local TweenService=game:GetService("TweenService")
+local UserInputService=game:GetService("UserInputService")
+local LocalPlayer=Players.LocalPlayer or Players.PlayerAdded:Wait()
+local isMobile=UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
-local HttpService = game:GetService("HttpService")
-local SoundService = game:GetService("SoundService")
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-
-local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
-local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-
--- Load external script
 local function loadScript(url)
-    local success, result = pcall(function()
-        local response = game:HttpGet(url, true)
-        return response and response ~= "" and loadstring(response)() or nil
+    local success,res=pcall(function()
+        local src=game:HttpGet(url,true)
+        if src and src~="" then
+            local func,err=loadstring(src)
+            if func then return func() end
+        end
     end)
-    if not success then warn("Error loading " .. url .. ": " .. tostring(result)) return false end
-    return true
+    return success and res~=nil
 end
 
--- Load additional scripts
-task.spawn(function()
-    loadScript("https://raw.githubusercontent.com/z0nxx/rtgfght/refs/heads/main/rtgfght.lua")
-    task.wait(1)
-    loadScript("https://raw.githubusercontent.com/z0nxx/image-script/refs/heads/main/image.lua")
-end)
-
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui", 5))
-screenGui.Name = "Z0nxxHub"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-
--- Blur effect
-local blurEffect = Instance.new("BlurEffect", game:GetService("Lighting"))
-blurEffect.Size = 0
-blurEffect.Enabled = false
-
--- Main frame
-local mainFrameSize = isMobile and UDim2.new(0.9, 0, 0.8, 0) or UDim2.new(0, 800, 0, 500)
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = mainFrameSize
-mainFrame.Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 15, 35)
-mainFrame.BackgroundTransparency = 0.2
-mainFrame.Visible = false
-mainFrame.ClipsDescendants = true
-mainFrame.ZIndex = 1
-Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
-local uiStroke = Instance.new("UIStroke", mainFrame)
-uiStroke.Thickness = 1.5
-uiStroke.Color = Color3.fromRGB(70, 30, 90)
-uiStroke.Transparency = 0.3
-
--- Header frame
-local headerFrame = Instance.new("Frame", mainFrame)
-headerFrame.Size = UDim2.new(1, 0, 0, isMobile and 40 or 60)
-headerFrame.BackgroundColor3 = Color3.fromRGB(30, 20, 40)
-headerFrame.BackgroundTransparency = 0.2
-headerFrame.ZIndex = 2
-
--- Avatar circle
-local avatarCircle = Instance.new("ImageButton", headerFrame)
-avatarCircle.Size = UDim2.new(0, isMobile and 32 or 50, 0, isMobile and 32 or 50)
-avatarCircle.Position = UDim2.new(0, 8, 0, isMobile and 4 or 5)
-avatarCircle.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-avatarCircle.Image = "rbxassetid://94562916053131" or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-avatarCircle.ScaleType = Enum.ScaleType.Fit
-avatarCircle.ZIndex = 3
-Instance.new("UICorner", avatarCircle).CornerRadius = UDim.new(1, 0)
-local avatarStroke = Instance.new("UIStroke", avatarCircle)
-avatarStroke.Thickness = 1
-avatarStroke.Color = Color3.fromRGB(70, 30, 90)
-
--- Header label
-local headerLabel = Instance.new("TextLabel", headerFrame)
-headerLabel.Size = UDim2.new(1, -(isMobile and 48 or 70), 1, 0)
-headerLabel.Position = UDim2.new(0, isMobile and 40 or 60, 0, 0)
-headerLabel.BackgroundTransparency = 1
-headerLabel.Text = ""
-headerLabel.TextColor3 = Color3.fromRGB(190, 140, 245)
-headerLabel.Font = Enum.Font.SourceSansBold
-headerLabel.TextSize = isMobile and 14 or 20
-headerLabel.TextXAlignment = Enum.TextXAlignment.Center
-headerLabel.TextWrapped = true
-headerLabel.ZIndex = 3
-local headerGradient = Instance.new("UIGradient", headerLabel)
-headerGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(190, 140, 245)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(220, 160, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(190, 140, 245))
-})
-headerGradient.Rotation = 45
-task.spawn(function()
-    while true do
-        TweenService:Create(headerGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 405}):Play()
-        task.wait(3)
-        TweenService:Create(headerGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 45}):Play()
-        task.wait(3)
-    end
-end)
-task.spawn(function() typeText(headerLabel, "z0nxx Hub", 0.1) end)
-
--- Close button
-local closeButton = Instance.new("TextButton", headerFrame)
-closeButton.Size = UDim2.new(0, isMobile and 20 or 30, 0, isMobile and 20 or 30)
-closeButton.Position = UDim2.new(1, -(isMobile and 24 or 35), 0.5, -(isMobile and 10 or 15))
-closeButton.BackgroundColor3 = Color3.fromRGB(70, 30, 90)
-closeButton.Text = ""
-closeButton.Font = Enum.Font.SourceSansBold
-closeButton.TextSize = isMobile and 8 or 14
-closeButton.ZIndex = 3
-Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 5)
-task.spawn(function() typeText(closeButton, "X", 0.1) end)
-
--- Utility functions
-local function createSound(soundId, parent)
-    local sound = Instance.new("Sound", parent or SoundService)
-    sound.SoundId = "rbxassetid://" .. tostring(soundId)
-    sound.Volume = 0.5
-    return sound
-end
-
-local function typeText(label, text, speed)
-    label.Text = ""
-    for i = 1, #text do
-        label.Text = string.sub(text, 1, i)
-        task.wait(speed or 0.05)
-    end
-end
-
-local function showNotification(message)
-    local notificationFrame = screenGui:FindFirstChild("NotificationFrame")
-    local notificationLabel = notificationFrame and notificationFrame:FindFirstChild("NotificationLabel")
-    if notificationLabel then
-        task.spawn(function() typeText(notificationLabel, message or "Скрипт активирован!", 0.05) end)
-        notificationFrame.Visible = true
-        local inTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, 0, 1, isMobile and -60 or -80)})
-        local outTween = TweenService:Create(notificationFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, 0, 1, isMobile and -40 or -60)})
-        inTween:Play()
-        task.wait(2)
-        outTween:Play()
-        outTween.Completed:Wait()
-        notificationFrame.Visible = false
-    end
-end
-
--- Close button functionality
-closeButton.MouseButton1Click:Connect(function()
-    local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 1.5, 0)})
-    local blurTweenOut = TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = 0})
-    closeTween:Play()
-    blurTweenOut:Play()
-    closeTween.Completed:Wait()
-    blurEffect.Enabled = false
-    mainFrame.Visible = false
-end)
-closeButton.MouseEnter:Connect(function()
-    TweenService:Create(closeButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(90, 40, 110)}):Play()
-end)
-closeButton.MouseLeave:Connect(function()
-    TweenService:Create(closeButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 30, 90)}):Play()
-end)
-
--- Dragging functionality
-local dragging, dragInput, dragStart, startPos
-headerFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+local function showNotification(msg)
+    local frame=screenGui:FindFirstChild("NotificationFrame")
+    if not frame then return end
+    local label=frame:FindFirstChild("NotificationLabel")
+    if label then
+        label.Text=msg or "Скрипт активирован!"
+        frame.Visible=true
+        local targetY=isMobile and -60 or -80
+        local inT=TweenService:Create(frame,TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),{Position=UDim2.new(0.5,0,1,targetY)})
+        local outT=TweenService:Create(frame,TweenInfo.new(0.3,Enum.EasingStyle.Quart,Enum.EasingDirection.In),{Position=UDim2.new(0.5,0,1,targetY-20)})
+        inT:Play()
+        task.delay(2.5,function()
+            outT:Play()
+            outT.Completed:Wait()
+            frame.Visible=false
         end)
     end
-end)
-headerFrame.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        dragInput = input
-        local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
-end)
+end
 
--- Sidebar
-local sidebar = Instance.new("Frame", mainFrame)
-sidebar.Size = UDim2.new(0, isMobile and 60 or 80, 1, -headerFrame.Size.Y.Offset)
-sidebar.Position = UDim2.new(0, 0, 0, headerFrame.Size.Y.Offset)
-sidebar.BackgroundColor3 = Color3.fromRGB(30, 20, 40)
-sidebar.BackgroundTransparency = 0.2
-sidebar.ZIndex = 2
-Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 10)
+local screenGui=Instance.new("ScreenGui",LocalPlayer:WaitForChild("PlayerGui",5))
+screenGui.Name="Z0nxxHub"
+screenGui.ResetOnSpawn=false
+screenGui.IgnoreGuiInset=true
 
--- Content frame
-local contentFrame = Instance.new("Frame", mainFrame)
-contentFrame.Size = UDim2.new(1, -(isMobile and 60 or 80), 1, -headerFrame.Size.Y.Offset)
-contentFrame.Position = UDim2.new(0, isMobile and 60 or 80, 0, headerFrame.Size.Y.Offset)
-contentFrame.BackgroundTransparency = 1
-contentFrame.ClipsDescendants = true
-contentFrame.ZIndex = 2
+local blur=Instance.new("BlurEffect",game:GetService("Lighting"))
+blur.Size=0
+blur.Enabled=false
 
--- Tabs
-local tabs = {"О Создателе", "FE Скрипты", "Телепорты", "Поиск Игроков", "Настройки"}
-local buttons, contentFrames = {}, {}
+-- Адаптивные размеры
+local mainSize=isMobile and UDim2.new(0.94,0,0.88,0) or UDim2.new(0,800,0,500)
+local main=Instance.new("Frame",screenGui)
+main.Size=mainSize
+main.Position=UDim2.new(0.5,-mainSize.X.Offset/2,0.5,-mainSize.Y.Offset/2)
+main.BackgroundColor3=Color3.fromRGB(25,15,35)
+main.BackgroundTransparency=0.2
+main.Visible=false
+main.ClipsDescendants=true
+main.ZIndex=1
+Instance.new("UICorner",main).CornerRadius=UDim.new(0,12)
+local mStroke=Instance.new("UIStroke",main)
+mStroke.Thickness=1.5
+mStroke.Color=Color3.fromRGB(70,30,90)
+mStroke.Transparency=0.3
 
-local tabListLayout = Instance.new("UIListLayout", sidebar)
-tabListLayout.FillDirection = Enum.FillDirection.Vertical
-tabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-tabListLayout.Padding = UDim.new(0, isMobile and 3 or 6)
-tabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+local header=Instance.new("Frame",main)
+header.Size=UDim2.new(1,0,0,isMobile and 44 or 60)
+header.BackgroundColor3=Color3.fromRGB(30,20,40)
+header.BackgroundTransparency=0.2
+header.ZIndex=2
 
--- Secret frame
-local secretFrame = Instance.new("Frame", contentFrame)
-secretFrame.Size = UDim2.new(1, -8, 1, -8)
-secretFrame.Position = UDim2.new(0, 4, 0, 4)
-secretFrame.BackgroundTransparency = 0.2
-secretFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-secretFrame.Visible = false
-secretFrame.ClipsDescendants = true
-secretFrame.ZIndex = 3
-Instance.new("UICorner", secretFrame).CornerRadius = UDim.new(0, 8)
-local secretStroke = Instance.new("UIStroke", secretFrame)
-secretStroke.Thickness = 1
-secretStroke.Color = Color3.fromRGB(70, 30, 90)
+local avatar=Instance.new("ImageButton",header)
+avatar.Size=UDim2.new(0,isMobile and 34 or 50,0,isMobile and 34 or 50)
+avatar.Position=UDim2.new(0,isMobile and 8 or 10,0.5,-(isMobile and 17 or 25))
+avatar.BackgroundColor3=Color3.fromRGB(35,25,45)
+avatar.Image="rbxassetid://94562916053131"
+avatar.ScaleType=Enum.ScaleType.Fit
+avatar.ZIndex=3
+Instance.new("UICorner",avatar).CornerRadius=UDim.new(1,0)
+local aStroke=Instance.new("UIStroke",avatar)
+aStroke.Thickness=1
+aStroke.Color=Color3.fromRGB(70,30,90)
 
-local secretLabel = Instance.new("TextLabel", secretFrame)
-secretLabel.Size = UDim2.new(1, -8, 1, -8)
-secretLabel.Position = UDim2.new(0, 4, 0, 4)
-secretLabel.BackgroundTransparency = 1
-secretLabel.Text = ""
-secretLabel.RichText = true
-secretLabel.TextColor3 = Color3.fromRGB(190, 140, 245)
-secretLabel.Font = Enum.Font.SourceSans
-secretLabel.TextSize = isMobile and 8 or 14
-secretLabel.TextWrapped = true
-secretLabel.TextXAlignment = Enum.TextXAlignment.Center
-secretLabel.TextYAlignment = Enum.TextYAlignment.Center
-secretLabel.ZIndex = 3
+local title=Instance.new("TextLabel",header)
+title.Size=UDim2.new(1,-(isMobile and 50 or 70),1,0)
+title.Position=UDim2.new(0,isMobile and 46 or 60,0,0)
+title.BackgroundTransparency=1
+title.Text="z0nxx Hub"
+title.TextColor3=Color3.fromRGB(190,140,245)
+title.Font=Enum.Font.SourceSansBold
+title.TextSize=isMobile and 15 or 20
+title.TextXAlignment=Enum.TextXAlignment.Center
+title.ZIndex=3
+local grad=Instance.new("UIGradient",title)
+grad.Color=ColorSequence.new{
+    ColorSequenceKeypoint.new(0,Color3.fromRGB(190,140,245)),
+    ColorSequenceKeypoint.new(0.5,Color3.fromRGB(220,160,255)),
+    ColorSequenceKeypoint.new(1,Color3.fromRGB(190,140,245))
+}
+grad.Rotation=45
 task.spawn(function()
-    typeText(secretLabel, string.format(
-        "<font size='%d' face='SourceSansBold'>Поздравляем!</font>\n\nТы нашёл пасхалку! 🥚\nЭто секретная вкладка z0nxx Hub!\n\nПрисоединяйся к Telegram:\n<font color='#00b7eb'><a href='https://t.me/z0nxxHUB'>https://t.me/z0nxxHUB</a></font>\n\nА также:\n• Получай обновления\n• Участвуй в розыгрышах\n• Стань частью комьюнити!",
-        isMobile and 10 or 16
-    ), 0.03)
-end)
-TweenService:Create(secretLabel, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {TextTransparency = 0.2}):Play()
-
--- Avatar circle handler
-avatarCircle.MouseButton1Click:Connect(function()
-    mainFrame.Visible = true
-    blurEffect.Enabled = true
-    TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 12}):Play()
-    for _, frame in ipairs(contentFrames) do frame.Visible = false end
-    secretFrame.Visible = true
-    for _, btn in ipairs(buttons) do
-        TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play()
+    while true do
+        TweenService:Create(grad,TweenInfo.new(3,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut),{Rotation=405}):Play()
+        task.wait(3)
+        TweenService:Create(grad,TweenInfo.new(3,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut),{Rotation=45}):Play()
+        task.wait(3)
     end
-    TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)}):Play()
-    showNotification("Пасхалка найдена!")
-    local clickSound = createSound("9120386446")
-    if clickSound then clickSound:Play() end
 end)
 
--- Create tab buttons
-for i, tabName in ipairs(tabs) do
-    local button = Instance.new("TextButton", sidebar)
-    button.Size = UDim2.new(0, isMobile and 50 or 60, 0, isMobile and 40 or 50)
-    button.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-    button.TextColor3 = Color3.fromRGB(190, 140, 245)
-    button.Text = ""
-    button.Font = Enum.Font.SourceSansSemibold
-    button.TextSize = isMobile and 7 or 12
-    button.TextWrapped = true
-    button.ZIndex = 3
-    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
-    local buttonStroke = Instance.new("UIStroke", button)
-    buttonStroke.Thickness = 1
-    buttonStroke.Color = Color3.fromRGB(70, 30, 90)
-    task.spawn(function() typeText(button, tabName, 0.05) end)
+local closeBtn=Instance.new("TextButton",header)
+closeBtn.Size=UDim2.new(0,isMobile and 24 or 30,0,isMobile and 24 or 30)
+closeBtn.Position=UDim2.new(1,-(isMobile and 28 or 35),0.5,-(isMobile and 12 or 15))
+closeBtn.BackgroundColor3=Color3.fromRGB(70,30,90)
+closeBtn.Text="X"
+closeBtn.TextColor3=Color3.fromRGB(190,140,245)
+closeBtn.Font=Enum.Font.SourceSansBold
+closeBtn.TextSize=isMobile and 10 or 14
+closeBtn.ZIndex=3
+Instance.new("UICorner",closeBtn).CornerRadius=UDim.new(0,6)
 
-    local contentFrameTab = Instance.new("Frame", contentFrame)
-    contentFrameTab.Size = UDim2.new(1, -8, 1, -8)
-    contentFrameTab.Position = UDim2.new(0, 4, 0, 4)
-    contentFrameTab.BackgroundTransparency = 1
-    contentFrameTab.Visible = i == 1
-    contentFrameTab.ClipsDescendants = true
-    contentFrameTab.ZIndex = 2
+local sidebar=Instance.new("Frame",main)
+sidebar.Size=UDim2.new(0,isMobile and 70 or 80,1,-header.Size.Y.Offset)
+sidebar.Position=UDim2.new(0,0,0,header.Size.Y.Offset)
+sidebar.BackgroundColor3=Color3.fromRGB(30,20,40)
+sidebar.BackgroundTransparency=0.2
+sidebar.ZIndex=2
+Instance.new("UICorner",sidebar).CornerRadius=UDim.new(0,10)
 
-    table.insert(buttons, button)
-    table.insert(contentFrames, contentFrameTab)
+local content=Instance.new("Frame",main)
+content.Size=UDim2.new(1,-sidebar.Size.X.Offset,1,-header.Size.Y.Offset)
+content.Position=UDim2.new(0,sidebar.Size.X.Offset,0,header.Size.Y.Offset)
+content.BackgroundTransparency=1
+content.ClipsDescendants=true
+content.ZIndex=2
 
-    button.MouseButton1Click:Connect(function()
-        for j, frame in ipairs(contentFrames) do frame.Visible = (j == i) end
-        secretFrame.Visible = false
-        for j, btn in ipairs(buttons) do
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = (j == i) and Color3.fromRGB(55, 35, 75) or Color3.fromRGB(35, 25, 45)}):Play()
+local tabs={"О Создателе","FE Скрипты","Телепорты","Поиск Игроков","ther hubs"}
+local tabButtons,tabFrames={},{}
+local layout=Instance.new("UIListLayout",sidebar)
+layout.FillDirection=Enum.FillDirection.Vertical
+layout.HorizontalAlignment=Enum.HorizontalAlignment.Center
+layout.Padding=UDim.new(0,isMobile and 4 or 6)
+layout.VerticalAlignment=Enum.VerticalAlignment.Center
+layout.SortOrder=Enum.SortOrder.LayoutOrder
+
+local secret=Instance.new("Frame",content)
+secret.Size=UDim2.new(1,-8,1,-8)
+secret.Position=UDim2.new(0,4,0,4)
+secret.BackgroundTransparency=0.2
+secret.BackgroundColor3=Color3.fromRGB(35,25,45)
+secret.Visible=false
+secret.ClipsDescendants=true
+secret.ZIndex=3
+Instance.new("UICorner",secret).CornerRadius=UDim.new(0,8)
+local sStroke=Instance.new("UIStroke",secret)
+sStroke.Thickness=1
+sStroke.Color=Color3.fromRGB(70,30,90)
+local sLabel=Instance.new("TextLabel",secret)
+sLabel.Size=UDim2.new(1,-8,1,-8)
+sLabel.Position=UDim2.new(0,4,0,4)
+sLabel.BackgroundTransparency=1
+sLabel.Text=[[Поздравляем!
+
+Ты нашёл пасхалку!
+Это секретная вкладка z0nxx Hub!
+
+Присоединяйся к Telegram:
+https://t.me/z0nxxHUB
+
+• Получай обновления
+• Участвуй в розыгрышах
+• Стань частью комьюнити!]]
+sLabel.RichText=true
+sLabel.TextColor3=Color3.fromRGB(190,140,245)
+sLabel.Font=Enum.Font.SourceSans
+sLabel.TextSize=isMobile and 9 or 14
+sLabel.TextWrapped=true
+sLabel.TextXAlignment=Enum.TextXAlignment.Center
+sLabel.TextYAlignment=Enum.TextYAlignment.Center
+sLabel.ZIndex=3
+TweenService:Create(sLabel,TweenInfo.new(1.5,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut,-1,true),{TextTransparency=0.2}):Play()
+
+for i,name in ipairs(tabs) do
+    local btn=Instance.new("TextButton",sidebar)
+    btn.Size=UDim2.new(0,isMobile and 58 or 68,0,isMobile and 44 or 50)
+    btn.BackgroundColor3=Color3.fromRGB(35,25,45)
+    btn.TextColor3=Color3.fromRGB(190,140,245)
+    btn.Text=name
+    btn.Font=Enum.Font.SourceSansSemibold
+    btn.TextSize=isMobile and 8 or 12
+    btn.TextWrapped=true
+    btn.ZIndex=3
+    Instance.new("UICorner",btn).CornerRadius=UDim.new(0,6)
+    local bStroke=Instance.new("UIStroke",btn)
+    bStroke.Thickness=1
+    bStroke.Color=Color3.fromRGB(70,30,90)
+
+    local frame=Instance.new("Frame",content)
+    frame.Size=UDim2.new(1,-8,1,-8)
+    frame.Position=UDim2.new(0,4,0,4)
+    frame.BackgroundTransparency=1
+    frame.Visible=i==1
+    frame.ClipsDescendants=true
+    frame.ZIndex=2
+
+    table.insert(tabButtons,btn)
+    table.insert(tabFrames,frame)
+
+    btn.MouseButton1Click:Connect(function()
+        for j,f in ipairs(tabFrames) do f.Visible=(j==i) end
+        secret.Visible=false
+        for j,b in ipairs(tabButtons) do
+            TweenService:Create(b,TweenInfo.new(0.2),{BackgroundColor3=(j==i)and Color3.fromRGB(55,35,75)or Color3.fromRGB(35,25,45)}):Play()
         end
-        if i == 2 then
-            local feButtons = contentFrames[2]:FindFirstChild("FEScrollFrame"):GetChildren()
-            for j, feButton in ipairs(feButtons) do
-                if feButton:IsA("TextButton") then
-                    feButton.Position = UDim2.new(feButton.Position.X.Scale, feButton.Position.X.Offset, 1, 100)
-                    feButton.TextTransparency = 1
-                    feButton.BackgroundTransparency = 1
-                    TweenService:Create(feButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {Position = feButton.Position + UDim2.new(0, 0, -1, -100)}):Play()
-                    TweenService:Create(feButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {TextTransparency = 0, BackgroundTransparency = 0}):Play()
+        if i==2 then
+            for _,b in ipairs(tabFrames[2]:FindFirstChild("FEScrollFrame"):GetChildren()) do
+                if b:IsA("TextButton") then
+                    b.Position=b.Position+UDim2.new(0,0,1,100)
+                    b.TextTransparency=1
+                    b.BackgroundTransparency=1
+                    TweenService:Create(b,TweenInfo.new(0.5,Enum.EasingStyle.Quart,Enum.EasingDirection.Out,0,false,(j-1)*0.1),{Position=b.Position-UDim2.new(0,0,1,100)}):Play()
+                    TweenService:Create(b,TweenInfo.new(0.5,Enum.EasingStyle.Quart,Enum.EasingDirection.Out,0,false,(j-1)*0.1),{TextTransparency=0,BackgroundTransparency=0}):Play()
                 end
             end
-        elseif i == 3 then
-            local teleportButtons = contentFrames[3]:GetChildren()
-            for j, tpButton in ipairs(teleportButtons) do
-                if tpButton:IsA("TextButton") then
-                    tpButton.Position = UDim2.new(tpButton.Position.X.Scale, tpButton.Position.X.Offset, 1, 100)
-                    tpButton.TextTransparency = 1
-                    tpButton.BackgroundTransparency = 1
-                    TweenService:Create(tpButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {Position = tpButton.Position + UDim2.new(0, 0, -1, -100)}):Play()
-                    TweenService:Create(tpButton, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out, 0, false, (j - 1) * 0.1), {TextTransparency = 0, BackgroundTransparency = 0}):Play()
+        elseif i==3 then
+            for _,b in ipairs(tabFrames[3]:GetChildren()) do
+                if b:IsA("TextButton") then
+                    b.Position=b.Position+UDim2.new(0,0,1,100)
+                    b.TextTransparency=1
+                    b.BackgroundTransparency=1
+                    TweenService:Create(b,TweenInfo.new(0.5,Enum.EasingStyle.Quart,Enum.EasingDirection.Out,0,false,(j-1)*0.1),{Position=b.Position-UDim2.new(0,0,1,100)}):Play()
+                    TweenService:Create(b,TweenInfo.new(0.5,Enum.EasingStyle.Quart,Enum.EasingDirection.Out,0,false,(j-1)*0.1),{TextTransparency=0,BackgroundTransparency=0}):Play()
                 end
             end
-        elseif i == 4 then
+        elseif i==4 then
             updatePlayerList()
         end
     end)
-    button.MouseEnter:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play()
+
+    btn.MouseEnter:Connect(function()
+        if not tabFrames[i].Visible then
+            TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(45,35,55)}):Play()
+        end
     end)
-    button.MouseLeave:Connect(function()
-        local j = table.find(buttons, button)
-        if j then
-            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = (j == i and contentFrames[i].Visible) and Color3.fromRGB(55, 35, 75) or Color3.fromRGB(35, 25, 45)}):Play()
+    btn.MouseLeave:Connect(function()
+        if not tabFrames[i].Visible then
+            TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,25,45)}):Play()
         end
     end)
 end
 
--- Creator scroll frame
-local creatorScroll = Instance.new("ScrollingFrame", contentFrames[1])
-creatorScroll.Size = UDim2.new(1, 0, 1, 0)
-creatorScroll.BackgroundTransparency = 1
-creatorScroll.ScrollBarThickness = isMobile and 3 or 4
-creatorScroll.ScrollBarImageColor3 = Color3.fromRGB(70, 30, 90)
-creatorScroll.ZIndex = 2
-creatorScroll.ClipsDescendants = true
-local creatorListLayout = Instance.new("UIListLayout", creatorScroll)
-creatorListLayout.Padding = UDim.new(0, isMobile and 4 or 6)
-creatorListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+-- 1 вкладка: О Создателе
+local creatorScroll=Instance.new("ScrollingFrame",tabFrames[1])
+creatorScroll.Size=UDim2.new(1,0,1,0)
+creatorScroll.BackgroundTransparency=1
+creatorScroll.ScrollBarThickness=isMobile and 4 or 5
+creatorScroll.ScrollBarImageColor3=Color3.fromRGB(70,30,90)
+creatorScroll.ZIndex=2
+creatorScroll.ClipsDescendants=true
+local cLayout=Instance.new("UIListLayout",creatorScroll)
+cLayout.Padding=UDim.new(0,isMobile and 6 or 8)
+cLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
 
-local creatorData = {
-    {
-        UserId = 2316299341,
-        Name = "z0nxx",
-        Title = "Создатель скрипта",
-        Info = "• Опыт: 3 года\n• Создан: 23.03.2025\n• Версия: 2.0",
-        Contact = "• Discord: z0nxx\n• Roblox: https://www.roblox.com/users/2316299341/profile",
-        Description = "Создатель хаба!"
-    },
-    {
-        UserId = 4254815427,
-        Name = "Lil_darkie",
-        Title = "@Popabebripeach - Тестировщик",
-        Info = "• Роль: Тестирование\n• Вклад: Отладка",
-        Contact = "Помог сделать скрипт удобным для мобильных.",
-        Description = "Спасибо за помощь!"
-    }
+local creatorData={
+    {UserId=2316299341,Name="z0nxx",Title="Создатель скрипта",Info="• Опыт: 3 года\n• Создан: 23.03.2025\n• Версия: 2.0",Contact="• Discord: z0nxx\n• Roblox: https://www.roblox.com/users/2316299341/profile",Description="Создатель хаба!"},
+    {UserId=4254815427,Name="Lil_darkie",Title="@Popabebripeach - Тестировщик",Info="• Роль: Тестирование\n• Вклад: Отладка",Contact="Помог сделать скрипт удобным для мобильных.",Description="Спасибо за помощь!"}
 }
+for _,d in ipairs(creatorData) do
+    local card=Instance.new("Frame",creatorScroll)
+    card.Size=UDim2.new(1,-12,0,isMobile and 170 or 280)
+    card.BackgroundColor3=Color3.fromRGB(35,25,45)
+    card.BackgroundTransparency=0.2
+    card.ZIndex=2
+    Instance.new("UICorner",card).CornerRadius=UDim.new(0,8)
+    local cStroke=Instance.new("UIStroke",card)
+    cStroke.Thickness=1
+    cStroke.Color=Color3.fromRGB(70,30,90)
 
-for _, data in ipairs(creatorData) do
-    local card = Instance.new("Frame", creatorScroll)
-    card.Size = UDim2.new(1, -8, 0, isMobile and 160 or 280)
-    card.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-    card.BackgroundTransparency = 0.2
-    card.ZIndex = 2
-    Instance.new("UICorner", card).CornerRadius = UDim.new(0, 8)
-    local cardStroke = Instance.new("UIStroke", card)
-    cardStroke.Thickness = 1
-    cardStroke.Color = Color3.fromRGB(70, 30, 90)
+    local av=Instance.new("ImageLabel",card)
+    av.Size=isMobile and UDim2.new(0,55,0,55) or UDim2.new(0,100,0,100)
+    av.Position=UDim2.new(0,isMobile and 10 or 12,0,isMobile and 10 or 12)
+    av.BackgroundTransparency=1
+    local ok,thumb=pcall(Players.GetUserThumbnailAsync,Players,d.UserId,Enum.ThumbnailType.HeadShot,isMobile and Enum.ThumbnailSize.Size48x48 or Enum.ThumbnailSize.Size150x150)
+    av.Image=ok and thumb or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+    av.ZIndex=2
+    Instance.new("UICorner",av).CornerRadius=UDim.new(0,8)
+    local avStroke=Instance.new("UIStroke",av)
+    avStroke.Thickness=1
+    avStroke.Color=Color3.fromRGB(70,30,90)
 
-    local avatar = Instance.new("ImageLabel", card)
-    avatar.Size = isMobile and UDim2.new(0, 50, 0, 50) or UDim2.new(0, 100, 0, 100)
-    avatar.Position = UDim2.new(0, 8, 0, 8)
-    avatar.BackgroundTransparency = 1
-    local success, thumbnail = pcall(function()
-        return Players:GetUserThumbnailAsync(data.UserId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size48x48 or Enum.ThumbnailSize.Size150x150)
+    local info=Instance.new("TextLabel",card)
+    info.Size=isMobile and UDim2.new(1,-70,0,150) or UDim2.new(1,-120,0,260)
+    info.Position=isMobile and UDim2.new(0,70,0,10) or UDim2.new(0,120,0,12)
+    info.BackgroundTransparency=1
+    info.Text=string.format(
+        "%s\n%s\n\n%s\n\n%s\n\n%s",
+        d.Name,d.Title,d.Info,d.Contact,d.Description
+    )
+    info.RichText=true
+    info.TextColor3=Color3.fromRGB(190,140,245)
+    info.Font=Enum.Font.SourceSans
+    info.TextSize=isMobile and 8 or 12
+    info.TextWrapped=true
+    info.TextXAlignment=Enum.TextXAlignment.Left
+    info.ZIndex=2
+    local pad=Instance.new("UIPadding",info)
+    pad.PaddingLeft=UDim.new(0,4)
+    pad.PaddingTop=UDim.new(0,4)
+end
+creatorScroll.CanvasSize=UDim2.new(0,0,0,(#creatorData*(isMobile and 176 or 286))+8)
+
+-- 2 вкладка: FE Скрипты
+local feScroll=Instance.new("ScrollingFrame",tabFrames[2])
+feScroll.Name="FEScrollFrame"
+feScroll.Size=UDim2.new(1,-16,1,-16)
+feScroll.Position=UDim2.new(0,8,0,8)
+feScroll.BackgroundColor3=Color3.fromRGB(30,20,40)
+feScroll.BackgroundTransparency=0.3
+feScroll.ScrollBarThickness=isMobile and 4 or 5
+feScroll.ScrollBarImageColor3=Color3.fromRGB(70,30,90)
+feScroll.ZIndex=2
+feScroll.ClipsDescendants=true
+Instance.new("UICorner",feScroll).CornerRadius=UDim.new(0,10)
+local feStroke=Instance.new("UIStroke",feScroll)
+feStroke.Thickness=1.5
+feStroke.Color=Color3.fromRGB(70,30,90)
+
+local grid=Instance.new("UIGridLayout",feScroll)
+grid.CellSize=isMobile and UDim2.new(0.45,0,0,44) or UDim2.new(0,180,0,50)
+grid.CellPadding=isMobile and UDim2.new(0.02,0,0,10) or UDim2.new(0,15,0,15)
+grid.SortOrder=Enum.SortOrder.LayoutOrder
+grid.HorizontalAlignment=Enum.HorizontalAlignment.Center
+grid.StartCorner=Enum.StartCorner.TopLeft
+
+local feScripts={
+    {"Fly (PC)","https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"},
+    {"R4D","https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script"},
+    {"Bypass Chat","https://raw.githubusercontent.com/z0nxx/bypass-chat-by-z0nxx/refs/heads/main/bypass%20chat/lua"},
+    {"Infinite Yield","https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
+    {"Mango Hub","https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub"},
+    {"Rvanka","https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"},
+    {"System Broken","https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"},
+    {"AVATAR EDITOR","https://rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"},
+    {"R6","https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"},
+    {"Chat Draw","https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"},
+    {"Vape","https://raw.githubusercontent.com/z0nxx/vape/refs/heads/main/vape.lua"},
+    {"Fling v3","https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"},
+    {"ToolEditor","https://raw.githubusercontent.com/z0nxx/risovalka-script/refs/heads/main/risovalka.lua"},
+    {"Charball","https://raw.githubusercontent.com/Melishy/melishy-scripts/main/charball/script.lua"},
+    {"RTX","https://raw.githubusercontent.com/z0nxx/rtx/refs/heads/main/rtxbyz0nxx.lua"},
+    {"Jerk Off","https://raw.githubusercontent.com/z0nxx/jerk-off-by-z0nxx/refs/heads/main/jerk%20off.lua"},
+    {"Invisible","https://raw.githubusercontent.com/z0nxx/invise/refs/heads/main/invisible.lua"},
+    {"HOUSEunbanned","https://raw.githubusercontent.com/z0nxx/UNBANEHOUSE/refs/heads/main/houseUnbane.lua"},
+    {"Fake IP Grabber","https://pastebin.com/raw/aziWwaw2"},
+    {"Universal Emotes","https://raw.githubusercontent.com/Eazvy/public-scripts/main/Universal_Animations_Emotes.lua"},
+    {"Dance Hub","https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"}
+}
+for i,d in ipairs(feScripts) do
+    local btn=Instance.new("TextButton",feScroll)
+    btn.BackgroundColor3=Color3.fromRGB(35,25,45)
+    btn.TextColor3=Color3.fromRGB(190,140,245)
+    btn.Text=d[1]
+    btn.Font=Enum.Font.SourceSansSemibold
+    btn.TextSize=isMobile and 10 or 15
+    btn.TextWrapped=true
+    btn.ZIndex=2
+    btn.Name=d[1]
+    Instance.new("UICorner",btn).CornerRadius=UDim.new(0,8)
+    local bStroke=Instance.new("UIStroke",btn)
+    bStroke.Thickness=1.5
+    bStroke.Color=Color3.fromRGB(70,30,90)
+
+    btn.MouseButton1Click:Connect(function()
+        local success=loadScript(d[2])
+        showNotification(success and (d[1].." запущен!") or ("Ошибка: "..d[1]))
     end)
-    avatar.Image = success and thumbnail or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-    avatar.ZIndex = 2
-    Instance.new("UICorner", avatar).CornerRadius = UDim.new(0, 8)
-    local avatarStroke = Instance.new("UIStroke", avatar)
-    avatarStroke.Thickness = 1
-    avatarStroke.Color = Color3.fromRGB(70, 30, 90)
-
-    local info = Instance.new("TextLabel", card)
-    info.Size = isMobile and UDim2.new(1, -60, 0, 140) or UDim2.new(1, -110, 0, 260)
-    info.Position = isMobile and UDim2.new(0, 60, 0, 8) or UDim2.new(0, 110, 0, 10)
-    info.BackgroundTransparency = 1
-    info.Text = ""
-    info.RichText = true
-    info.TextColor3 = Color3.fromRGB(190, 140, 245)
-    info.Font = Enum.Font.SourceSans
-    info.TextSize = isMobile and 7 or 12
-    info.TextWrapped = true
-    info.TextXAlignment = Enum.TextXAlignment.Left
-    info.ZIndex = 2
-    Instance.new("UIPadding", info).PaddingLeft = UDim.new(0, 4)
-    Instance.new("UIPadding", info).PaddingTop = UDim.new(0, 4)
-    task.spawn(function()
-        typeText(info, string.format(
-            "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>%s</font>\n\n%s\n\n%s\n\n%s",
-            isMobile and 8 or 14, data.Name, data.Title, data.Info, data.Contact, data.Description
-        ), 0.03)
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(45,35,55)}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,25,45)}):Play()
     end)
 end
-creatorScroll.CanvasSize = UDim2.new(0, 0, 0, (#creatorData * (isMobile and 164 or 286)) + 6)
 
--- FE Scripts frame
-local feScrollFrame = Instance.new("ScrollingFrame", contentFrames[2])
-feScrollFrame.Name = "FEScrollFrame"
-feScrollFrame.Size = isMobile and UDim2.new(0.9, 0, 0.9, 0) or UDim2.new(0, 600, 0, 400)
-feScrollFrame.Position = UDim2.new(0.5, -(feScrollFrame.Size.X.Offset / 2), 0.5, -(feScrollFrame.Size.Y.Offset / 2))
-feScrollFrame.BackgroundColor3 = Color3.fromRGB(30, 20, 40)
-feScrollFrame.BackgroundTransparency = 0.3
-feScrollFrame.ScrollBarThickness = isMobile and 3 or 4
-feScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 30, 90)
-feScrollFrame.ZIndex = 2
-feScrollFrame.ClipsDescendants = true
-Instance.new("UICorner", feScrollFrame).CornerRadius = UDim.new(0, 10)
-local feStroke = Instance.new("UIStroke", feScrollFrame)
-feStroke.Thickness = 1.5
-feStroke.Color = Color3.fromRGB(70, 30, 90)
-local feGridLayout = Instance.new("UIGridLayout", feScrollFrame)
-feGridLayout.CellSize = isMobile and UDim2.new(0, 120, 0, 40) or UDim2.new(0, 180, 0, 50)
-feGridLayout.CellPadding = isMobile and UDim2.new(0, 10, 0, 10) or UDim2.new(0, 15, 0, 15)
-feGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-feGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+-- 3 вкладка: Телепорты
+local tpScroll=Instance.new("ScrollingFrame",tabFrames[3])
+tpScroll.Size=UDim2.new(1,-16,1,-16)
+tpScroll.Position=UDim2.new(0,8,0,8)
+tpScroll.BackgroundTransparency=1
+tpScroll.ScrollBarThickness=isMobile and 4 or 5
+tpScroll.ScrollBarImageColor3=Color3.fromRGB(70,30,90)
+tpScroll.ZIndex=2
+tpScroll.ClipsDescendants=true
+local tpLayout=Instance.new("UIListLayout",tpScroll)
+tpLayout.Padding=UDim.new(0,isMobile and 6 or 8)
+tpLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
 
-local feScripts = {
-    {"Fly (PC)", "https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"},
-    {"R4D", "https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script"},
-    {"Bypass Chat", "https://raw.githubusercontent.com/z0nxx/bypass-chat-by-z0nxx/refs/heads/main/bypass%20chat/lua"},
-    {"Infinite Yield", "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"},
-    {"Mango Hub", "https://raw.githubusercontent.com/rogelioajax/lua/main/MangoHub"},
-    {"Rvanka", "https://raw.githubusercontent.com/z0nxx/rvanka/refs/heads/main/rvankabyz0nxx.lua"},
-    {"System Broken", "https://raw.githubusercontent.com/H20CalibreYT/SystemBroken/main/script"},
-    {"AVATAR EDITOR", "https://rawscripts.net/raw/Brookhaven-RP-Free-Script-16614"},
-    {"R6", "https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua"},
-    {"Chat Draw", "https://raw.githubusercontent.com/z0nxx/chat-draw/refs/heads/main/chat%20draw"},
-    {"Vape", "https://raw.githubusercontent.com/z0nxx/vape/refs/heads/main/vape.lua"},
-    {"Fling v3", "https://raw.githubusercontent.com/z0nxx/z0nxx-fling-v-3/refs/heads/main/flingv3.lua"},
-    {"ToolEditor", "https://raw.githubusercontent.com/z0nxx/risovalka-script/refs/heads/main/risovalka.lua"},
-    {"Charball", "https://raw.githubusercontent.com/Melishy/melishy-scripts/main/charball/script.lua"},
-    {"RTX", "https://raw.githubusercontent.com/z0nxx/rtx/refs/heads/main/rtxbyz0nxx.lua"},
-    {"Jerk Off", "https://raw.githubusercontent.com/z0nxx/jerk-off-by-z0nxx/refs/heads/main/jerk%20off.lua"},
-    {"Invisible", "https://raw.githubusercontent.com/z0nxx/invise/refs/heads/main/invisible.lua"},
-    {"HOUSEunbanned", "https://raw.githubusercontent.com/z0nxx/UNBANEHOUSE/refs/heads/main/houseUnbane.lua"},
-    {"Fake IP Grabber", "https://pastebin.com/raw/aziWwaw2"},
-    {"Universal Emotes", "https://raw.githubusercontent.com/Eazvy/public-scripts/main/Universal_Animations_Emotes.lua"},
-    {"Dance Hub", "https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"},
-    {"Halloween Update", "https://raw.githubusercontent.com/z0nxx/halloweeen-ivent/refs/heads/main/ibent.lua"}
+local savedPos={}
+local locations={
+    {Name="Спавн",Position=Vector3.new(-22.2,2.41,15.5)},
+    {Name="База",Position=Vector3.new(-81.5,17.48,-124.39)},
+    {Name="AFK Зона",Position=Vector3.new(333.55,89.6,107.74),Angle=CFrame.Angles(0,math.pi,0)}
 }
+for i=1,4 do
+    local btn=Instance.new("TextButton",tpScroll)
+    btn.Size=UDim2.new(1,-16,0,isMobile and 32 or 36)
+    btn.BackgroundColor3=Color3.fromRGB(35,25,45)
+    btn.TextColor3=Color3.fromRGB(190,140,245)
+    btn.Text=i<=#locations and locations[i].Name or (i==4 and "Сохранить Точку" or "Телепорт к Сохранённой")
+    btn.Font=Enum.Font.SourceSansSemibold
+    btn.TextSize=isMobile and 9 or 12
+    btn.ZIndex=2
+    Instance.new("UICorner",btn).CornerRadius=UDim.new(0,6)
+    local bStroke=Instance.new("UIStroke",btn)
+    bStroke.Thickness=1
+    bStroke.Color=Color3.fromRGB(70,30,90)
 
-for _, data in ipairs(feScripts) do
-    local feButton = Instance.new("TextButton", feScrollFrame)
-    feButton.Size = isMobile and UDim2.new(0, 120, 0, 40) or UDim2.new(0, 180, 0, 50)
-    feButton.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-    feButton.TextColor3 = Color3.fromRGB(190, 140, 245)
-    feButton.Text = ""
-    feButton.Font = Enum.Font.SourceSansSemibold
-    feButton.TextSize = isMobile and 9 or 15
-    feButton.TextWrapped = true
-    feButton.ZIndex = 2
-    feButton.Name = data[1]
-    Instance.new("UICorner", feButton).CornerRadius = UDim.new(0, 8)
-    local feStroke = Instance.new("UIStroke", feButton)
-    feStroke.Thickness = 1.5
-    feStroke.Color = Color3.fromRGB(70, 30, 90)
-    task.spawn(function() typeText(feButton, data[1], 0.05) end)
-
-    feButton.MouseButton1Click:Connect(function()
-        if loadScript(data[2]) then showNotification(data[1] .. " активирован!") else showNotification("Ошибка активации " .. data[1]) end
-    end)
-    feButton.MouseEnter:Connect(function()
-        TweenService:Create(feButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55), Size = isMobile and UDim2.new(0, 124, 0, 42) or UDim2.new(0, 184, 0, 52)}):Play()
-    end)
-    feButton.MouseLeave:Connect(function()
-        TweenService:Create(feButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45), Size = isMobile and UDim2.new(0, 120, 0, 40) or UDim2.new(0, 180, 0, 50)}):Play()
-    end)
-end
-local columns = isMobile and 2 or 3
-local rows = math.ceil(#feScripts / columns)
-feScrollFrame.CanvasSize = UDim2.new(0, 0, 0, (rows * (isMobile and 50 or 65) + (isMobile and 10 or 15)))
-
--- Teleport frame
-local teleportFrame = Instance.new("ScrollingFrame", contentFrames[3])
-teleportFrame.Size = UDim2.new(1, 0, 1, 0)
-teleportFrame.BackgroundTransparency = 1
-teleportFrame.ScrollBarThickness = isMobile and 3 or 4
-teleportFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 30, 90)
-teleportFrame.ZIndex = 2
-teleportFrame.ClipsDescendants = true
-local teleportLayout = Instance.new("UIListLayout", teleportFrame)
-teleportLayout.Padding = UDim.new(0, isMobile and 4 or 6)
-teleportLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
-local savedPositions = {}
-local teleportLocations = {
-    {Name = "Спавн", Position = Vector3.new(-22.2000103, 2.4087739, 15.4999981)},
-    {Name = "База", Position = Vector3.new(-81.4962692, 17.4849072, -124.388054)},
-    {Name = "AFK Зона", Position = Vector3.new(333.547943, 89.6000061, 107.741913), Angle = CFrame.Angles(0, math.pi, 0)}
-}
-
-for i = 1, 4 do
-    local button = Instance.new("TextButton", teleportFrame)
-    button.Size = UDim2.new(1, -8, 0, isMobile and 28 or 36)
-    button.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-    button.TextColor3 = Color3.fromRGB(190, 140, 245)
-    button.Text = ""
-    button.Font = Enum.Font.SourceSansSemibold
-    button.TextSize = isMobile and 7 or 12
-    button.TextWrapped = true
-    button.ZIndex = 2
-    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
-    local buttonStroke = Instance.new("UIStroke", button)
-    buttonStroke.Thickness = 1
-    buttonStroke.Color = Color3.fromRGB(70, 30, 90)
-    task.spawn(function()
-        typeText(button, i <= #teleportLocations and teleportLocations[i].Name or (i == 4 and "Сохранить Точку" or "Телепорт к Сохранённой"), 0.05)
-    end)
-
-    button.MouseButton1Click:Connect(function()
-        local character = LocalPlayer.Character
-        if character and character:FindFirstChild("HumanoidRootPart") then
-            if i <= #teleportLocations then
-                local cf = CFrame.new(teleportLocations[i].Position)
-                if teleportLocations[i].Angle then cf = cf * teleportLocations[i].Angle end
-                character.HumanoidRootPart.CFrame = cf
-                showNotification("Телепорт в " .. teleportLocations[i].Name)
-            elseif i == 4 then
-                table.insert(savedPositions, character.HumanoidRootPart.Position)
-                task.spawn(function() typeText(button, "Сохранить Точку (" .. #savedPositions .. ")", 0.05) end)
-                showNotification("Точка сохранена!")
-            elseif i == 5 and #savedPositions > 0 then
-                character.HumanoidRootPart.CFrame = CFrame.new(savedPositions[#savedPositions])
-                showNotification("Телепорт к сохранённой точке")
-            else
-                showNotification("Нет сохранённых точек!")
-            end
+    btn.MouseButton1Click:Connect(function()
+        local char=LocalPlayer.Character
+        if not (char and char:FindFirstChild("HumanoidRootPart")) then showNotification("Ошибка: Персонаж не загружен!"); return end
+        local hrp=char.HumanoidRootPart
+        if i<=#locations then
+            local cf=CFrame.new(locations[i].Position)
+            if locations[i].Angle then cf=cf*locations[i].Angle end
+            hrp.CFrame=cf
+            showNotification("Телепорт в "..locations[i].Name)
+        elseif i==4 then
+            table.insert(savedPos,hrp.Position)
+            btn.Text="Сохранить Точку ("..#savedPos..")"
+            showNotification("Точка сохранена!")
+        elseif i==5 and #savedPos>0 then
+            hrp.CFrame=CFrame.new(savedPos[#savedPos])
+            showNotification("Телепорт к сохранённой точке")
         else
-            showNotification("Ошибка: Персонаж не загружен!")
+            showNotification("Нет сохранённых точек!")
         end
     end)
-    button.MouseEnter:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play()
-    end)
-    button.MouseLeave:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play()
-    end)
+
+    btn.MouseEnter:Connect(function() TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(45,35,55)}):Play() end)
+    btn.MouseLeave:Connect(function() TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,25,45)}):Play() end)
 end
-teleportFrame.CanvasSize = UDim2.new(0, 0, 0, 4 * (isMobile and 32 or 42))
+tpScroll.CanvasSize=UDim2.new(0,0,0,4*(isMobile and 38 or 44))
 
--- Player list frame
-local playerListFrame = Instance.new("Frame", contentFrames[4])
-playerListFrame.Size = isMobile and UDim2.new(0.4, 0, 1, -8) or UDim2.new(0, 160, 1, -12)
-playerListFrame.Position = UDim2.new(0, 4, 0, 4)
-playerListFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-playerListFrame.BackgroundTransparency = 0.2
-playerListFrame.ZIndex = 2
-Instance.new("UICorner", playerListFrame).CornerRadius = UDim.new(0, 8)
+-- 4 вкладка: Поиск Игроков (мобильная адаптация)
+local playerList=Instance.new("Frame",tabFrames[4])
+playerList.Size=isMobile and UDim2.new(1,-16,0.4,0) or UDim2.new(0,160,1,-20)
+playerList.Position=isMobile and UDim2.new(0,8,0,8) or UDim2.new(0,8,0,8)
+playerList.BackgroundColor3=Color3.fromRGB(35,25,45)
+playerList.BackgroundTransparency=0.2
+playerList.ZIndex=2
+Instance.new("UICorner",playerList).CornerRadius=UDim.new(0,8)
 
-local playerListTitle = Instance.new("TextLabel", playerListFrame)
-playerListTitle.Size = UDim2.new(1, 0, 0, isMobile and 24 or 32)
-playerListTitle.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-playerListTitle.TextColor3 = Color3.fromRGB(190, 140, 245)
-playerListTitle.Text = ""
-playerListTitle.Font = Enum.Font.SourceSansBold
-playerListTitle.TextSize = isMobile and 8 or 14
-playerListTitle.TextWrapped = true
-playerListTitle.ZIndex = 2
-Instance.new("UICorner", playerListTitle).CornerRadius = UDim.new(0, 8)
-task.spawn(function() typeText(playerListTitle, "Игроки", 0.05) end)
+local plTitle=Instance.new("TextLabel",playerList)
+plTitle.Size=UDim2.new(1,0,0,isMobile and 28 or 32)
+plTitle.BackgroundColor3=Color3.fromRGB(35,25,45)
+plTitle.Text="Игроки"
+plTitle.TextColor3=Color3.fromRGB(190,140,245)
+plTitle.Font=Enum.Font.SourceSansBold
+plTitle.TextSize=isMobile and 10 or 14
+plTitle.ZIndex=2
+Instance.new("UICorner",plTitle).CornerRadius=UDim.new(0,8)
 
-local playerListScroll = Instance.new("ScrollingFrame", playerListFrame)
-playerListScroll.Size = UDim2.new(1, 0, 1, isMobile and -28 or -40)
-playerListScroll.Position = UDim2.new(0, 0, 0, isMobile and 24 or 32)
-playerListScroll.BackgroundTransparency = 1
-playerListScroll.ScrollBarThickness = isMobile and 3 or 4
-playerListScroll.ScrollBarImageColor3 = Color3.fromRGB(70, 30, 90)
-playerListScroll.ZIndex = 2
-playerListScroll.ClipsDescendants = true
-local playerListLayout = Instance.new("UIListLayout", playerListScroll)
-playerListLayout.Padding = UDim.new(0, isMobile and 2 or 3)
+local plScroll=Instance.new("ScrollingFrame",playerList)
+plScroll.Size=UDim2.new(1,0,1,isMobile and -32 or -40)
+plScroll.Position=UDim2.new(0,0,0,isMobile and 28 or 32)
+plScroll.BackgroundTransparency=1
+plScroll.ScrollBarThickness=isMobile and 4 or 5
+plScroll.ScrollBarImageColor3=Color3.fromRGB(70,30,90)
+plScroll.ZIndex=2
+plScroll.ClipsDescendants=true
+local plLayout=Instance.new("UIListLayout",plScroll)
+plLayout.Padding=UDim.new(0,isMobile and 3 or 4)
 
-local playerInfoFrame = Instance.new("Frame", contentFrames[4])
-playerInfoFrame.Size = isMobile and UDim2.new(0.55, 0, 1, -8) or UDim2.new(0, 320, 1, -12)
-playerInfoFrame.Position = isMobile and UDim2.new(0.45, 4, 0, 4) or UDim2.new(0, 170, 0, 6)
-playerInfoFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-playerInfoFrame.BackgroundTransparency = 0.2
-playerInfoFrame.ZIndex = 2
-Instance.new("UICorner", playerInfoFrame).CornerRadius = UDim.new(0, 8)
+local infoFrame=Instance.new("Frame",tabFrames[4])
+infoFrame.Size=isMobile and UDim2.new(1,-16,0.55,0) or UDim2.new(0,320,1,-20)
+infoFrame.Position=isMobile and UDim2.new(0,8,0.45,0) or UDim2.new(0,176,0,8)
+infoFrame.BackgroundColor3=Color3.fromRGB(35,25,45)
+infoFrame.BackgroundTransparency=0.2
+infoFrame.ZIndex=2
+Instance.new("UICorner",infoFrame).CornerRadius=UDim.new(0,8)
 
-local avatarImage = Instance.new("ImageLabel", playerInfoFrame)
-avatarImage.Size = isMobile and UDim2.new(0, 40, 0, 40) or UDim2.new(0, 100, 0, 100)
-avatarImage.Position = UDim2.new(0.5, -(isMobile and 20 or 50), 0, isMobile and 8 or 10)
-avatarImage.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-avatarImage.ZIndex = 2
-Instance.new("UICorner", avatarImage).CornerRadius = UDim.new(0, 8)
-local avatarStroke = Instance.new("UIStroke", avatarImage)
-avatarStroke.Thickness = 1
-avatarStroke.Color = Color3.fromRGB(70, 30, 90)
+local avatarImg=Instance.new("ImageLabel",infoFrame)
+avatarImg.Size=isMobile and UDim2.new(0,48,0,48) or UDim2.new(0,100,0,100)
+avatarImg.Position=UDim2.new(0.5,-(isMobile and 24 or 50),0,isMobile and 10 or 12)
+avatarImg.BackgroundColor3=Color3.fromRGB(35,25,45)
+avatarImg.Image="rbxasset://textures/ui/GuiImagePlaceholder.png"
+avatarImg.ZIndex=2
+Instance.new("UICorner",avatarImg).CornerRadius=UDim.new(0,8)
+local avStroke=Instance.new("UIStroke",avatarImg)
+avStroke.Thickness=1
+avStroke.Color=Color3.fromRGB(70,30,90)
 
-local playerInfo = Instance.new("TextLabel", playerInfoFrame)
-playerInfo.Size = isMobile and UDim2.new(1, -8, 0, 80) or UDim2.new(1, -12, 0, 140)
-playerInfo.Position = isMobile and UDim2.new(0, 4, 0, 50) or UDim2.new(0, 6, 0, 120)
-playerInfo.BackgroundTransparency = 1
-playerInfo.TextColor3 = Color3.fromRGB(190, 140, 245)
-playerInfo.Font = Enum.Font.SourceSans
-playerInfo.TextSize = isMobile and 7 or 12
-playerInfo.TextWrapped = true
-playerInfo.TextXAlignment = Enum.TextXAlignment.Left
-playerInfo.TextYAlignment = Enum.TextYAlignment.Top
-playerInfo.Text = ""
-playerInfo.RichText = true
-task.spawn(function() typeText(playerInfo, "Выберите игрока.", 0.05) end)
+local infoLabel=Instance.new("TextLabel",infoFrame)
+infoLabel.Size=isMobile and UDim2.new(1,-12,0,80) or UDim2.new(1,-16,0,140)
+infoLabel.Position=isMobile and UDim2.new(0,6,0,60) or UDim2.new(0,8,0,120)
+infoLabel.BackgroundTransparency=1
+infoLabel.Text="Выберите игрока."
+infoLabel.TextColor3=Color3.fromRGB(190,140,245)
+infoLabel.Font=Enum.Font.SourceSans
+infoLabel.TextSize=isMobile and 8 or 12
+infoLabel.TextWrapped=true
+infoLabel.TextXAlignment=Enum.TextXAlignment.Left
+infoLabel.TextYAlignment=Enum.TextYAlignment.Top
+infoLabel.RichText=true
 
-local teleportButton = Instance.new("TextButton", playerInfoFrame)
-teleportButton.Size = isMobile and UDim2.new(0, 60, 0, 24) or UDim2.new(0, 120, 0, 32)
-teleportButton.Position = isMobile and UDim2.new(0.5, -30, 1, -28) or UDim2.new(0.5, -60, 1, -40)
-teleportButton.BackgroundColor3 = Color3.fromRGB(70, 30, 90)
-teleportButton.TextColor3 = Color3.fromRGB(190, 140, 245)
-teleportButton.Text = ""
-teleportButton.Font = Enum.Font.SourceSansBold
-teleportButton.TextSize = isMobile and 7 or 12
-teleportButton.TextWrapped = true
-teleportButton.Visible = false
-teleportButton.ZIndex = 2
-Instance.new("UICorner", teleportButton).CornerRadius = UDim.new(0, 6)
-task.spawn(function() typeText(teleportButton, "Телепорт", 0.05) end)
+local tpBtn=Instance.new("TextButton",infoFrame)
+tpBtn.Size=isMobile and UDim2.new(0,70,0,28) or UDim2.new(0,120,0,32)
+tpBtn.Position=isMobile and UDim2.new(0.5,-35,1,-32) or UDim2.new(0.5,-60,1,-40)
+tpBtn.BackgroundColor3=Color3.fromRGB(70,30,90)
+tpBtn.Text="Телепорт"
+tpBtn.TextColor3=Color3.fromRGB(190,140,245)
+tpBtn.Font=Enum.Font.SourceSansBold
+tpBtn.TextSize=isMobile and 9 or 12
+tpBtn.Visible=false
+tpBtn.ZIndex=2
+Instance.new("UICorner",tpBtn).CornerRadius=UDim.new(0,6)
 
--- Settings frame
-local settingsFrame = Instance.new("ScrollingFrame", contentFrames[5])
-settingsFrame.Size = UDim2.new(1, 0, 1, 0)
-settingsFrame.BackgroundTransparency = 1
-settingsFrame.ScrollBarThickness = isMobile and 3 or 4
-settingsFrame.ScrollBarImageColor3 = Color3.fromRGB(70, 30, 90)
-settingsFrame.ZIndex = 2
-settingsFrame.ClipsDescendants = true
-local settingsLayout = Instance.new("UIListLayout", settingsFrame)
-settingsLayout.Padding = UDim.new(0, isMobile and 4 or 6)
-settingsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+local selectedPlayer=nil
+local function waitChar(p,t) t=t or 3 local s=tick() while tick()-s<t do if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then return p.Character end task.wait(0.1) end end
 
-local settingsOptions = {
-    {Name = "Размер GUI", Min = 0.5, Max = 1.5, Default = 1, Step = 0.1},
-    {Name = "Прозрачность", Min = 0, Max = 0.5, Default = 0.2, Step = 0.05},
-    {Name = "Скорость анимации", Min = 0.1, Max = 1, Default = 0.3, Step = 0.05}
-}
-
-for i, setting in ipairs(settingsOptions) do
-    local settingFrame = Instance.new("Frame", settingsFrame)
-    settingFrame.Size = UDim2.new(1, -8, 0, isMobile and 50 or 70)
-    settingFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-    settingFrame.BackgroundTransparency = 0.2
-    settingFrame.ZIndex = 2
-    Instance.new("UICorner", settingFrame).CornerRadius = UDim.new(0, 8)
-    local settingStroke = Instance.new("UIStroke", settingFrame)
-    settingStroke.Thickness = 1
-    settingStroke.Color = Color3.fromRGB(70, 30, 90)
-
-    local settingLabel = Instance.new("TextLabel", settingFrame)
-    settingLabel.Size = UDim2.new(1, -8, 0, isMobile and 20 or 25)
-    settingLabel.Position = UDim2.new(0, 4, 0, 4)
-    settingLabel.BackgroundTransparency = 1
-    settingLabel.Text = ""
-    settingLabel.TextColor3 = Color3.fromRGB(190, 140, 245)
-    settingLabel.Font = Enum.Font.SourceSansBold
-    settingLabel.TextSize = isMobile and 8 or 14
-    settingLabel.TextWrapped = true
-    settingLabel.TextXAlignment = Enum.TextXAlignment.Left
-    settingLabel.ZIndex = 2
-    task.spawn(function() typeText(settingLabel, setting.Name .. ": " .. tostring(setting.Default), 0.05) end)
-
-    local sliderFrame = Instance.new("Frame", settingFrame)
-    sliderFrame.Size = UDim2.new(1, -16, 0, isMobile and 10 or 15)
-    sliderFrame.Position = UDim2.new(0, 8, 0, isMobile and 28 or 35)
-    sliderFrame.BackgroundColor3 = Color3.fromRGB(70, 30, 90)
-    sliderFrame.ZIndex = 2
-    Instance.new("UICorner", sliderFrame).CornerRadius = UDim.new(0, 5)
-
-    local sliderFill = Instance.new("Frame", sliderFrame)
-    sliderFill.Size = UDim2.new((setting.Default - setting.Min) / (setting.Max - setting.Min), 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(90, 40, 110)
-    sliderFill.ZIndex = 2
-    Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(0, 5)
-
-    local sliderButton = Instance.new("TextButton", sliderFrame)
-    sliderButton.Size = UDim2.new(0, isMobile and 12 or 16, 0, isMobile and 12 or 16)
-    sliderButton.Position = UDim2.new((setting.Default - setting.Min) / (setting.Max - setting.Min), -6, 0, -1)
-    sliderButton.BackgroundColor3 = Color3.fromRGB(190, 140, 245)
-    sliderButton.Text = ""
-    sliderButton.ZIndex = 3
-    Instance.new("UICorner", sliderButton).CornerRadius = UDim.new(1, 0)
-
-    local draggingSlider = false
-    sliderButton.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            draggingSlider = true
-        end
-    end)
-    sliderButton.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            draggingSlider = false
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local mouseX = input.Position.X
-            local frameX = sliderFrame.AbsolutePosition.X
-            local frameWidth = sliderFrame.AbsoluteSize.X
-            local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
-            local value = setting.Min + (setting.Max - setting.Min) * relativeX
-            value = math.floor(value / setting.Step + 0.5) * setting.Step
-            sliderFill.Size = UDim2.new(relativeX, 0, 1, 0)
-            sliderButton.Position = UDim2.new(relativeX, -6, 0, -1)
-            task.spawn(function() typeText(settingLabel, setting.Name .. ": " .. string.format("%.2f", value), 0.05) end)
-            if i == 1 then
-                mainFrame.Size = mainFrameSize * value
-                mainFrame.Position = UDim2.new(0.5, -mainFrameSize.X.Offset * value / 2, 0.5, -mainFrameSize.Y.Offset * value / 2)
-            elseif i == 2 then
-                mainFrame.BackgroundTransparency = value
-                sidebar.BackgroundTransparency = value
-                headerFrame.BackgroundTransparency = value
-            elseif i == 3 then
-                openTween = TweenService:Create(mainFrame, TweenInfo.new(value, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
-                closeTween = TweenService:Create(mainFrame, TweenInfo.new(value, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 1.5, 0)})
-                blurTweenIn = TweenService:Create(blurEffect, TweenInfo.new(value, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 12})
-                blurTweenOut = TweenService:Create(blurEffect, TweenInfo.new(value, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = 0})
-            end
-        end
-    end)
-end
-settingsFrame.CanvasSize = UDim2.new(0, 0, 0, #settingsOptions * (isMobile and 54 or 76))
-
--- Wait for character
-local function waitForCharacter(player, timeout)
-    timeout = timeout or 3
-    local startTime = tick()
-    while tick() - startTime < timeout do
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            return player.Character
-        end
-        task.wait(0.1)
-    end
-    return nil
-end
-
-local selectedPlayer, selectedPlayerName = nil, nil
-
--- Teleport button handler
-teleportButton.MouseButton1Click:Connect(function()
-    local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then
-        task.spawn(function() typeText(playerInfo, "Выберите игрока.\n\n<font color='#ff5555'>Ошибка: Персонаж не загружен!</font>", 0.03) end)
+tpBtn.MouseButton1Click:Connect(function()
+    local char=LocalPlayer.Character
+    if not (char and char:FindFirstChild("HumanoidRootPart")) then
+        infoLabel.Text="Ошибка: Персонаж не загружен!"
         showNotification("Ошибка: Персонаж не загружен!")
         return
     end
-    if not selectedPlayer or not Players:FindFirstChild(selectedPlayer.Name) then
-        task.spawn(function() typeText(playerInfo, "Выберите игрока.\n\n<font color='#ff5555'>Ошибка: Игрок не выбран!</font>", 0.03) end)
-        showNotification("Ошибка: Игрок не выбран или не в игре!")
-        warn("Teleport failed: " .. (selectedPlayerName or "nil"))
-        selectedPlayer = nil
-        selectedPlayerName = nil
-        teleportButton.Visible = false
+    if not selectedPlayer then
+        infoLabel.Text="Ошибка: Игрок не выбран!"
+        showNotification("Ошибка: Игрок не выбран!")
         return
     end
-    local targetCharacter = waitForCharacter(selectedPlayer)
-    if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-        character.HumanoidRootPart.CFrame = targetCharacter.HumanoidRootPart.CFrame
-        task.spawn(function()
-            typeText(playerInfo, string.format(
-                "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: Да\n\n<font color='#00ff00'>Телепорт успешен!</font>",
-                isMobile and 8 or 14, selectedPlayer.DisplayName, selectedPlayer.Name, selectedPlayer.UserId,
-                selectedPlayer.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - selectedPlayer.AccountAge * 86400) or "Неизвестно",
-                selectedPlayer.Team and selectedPlayer.Team.Name or "Без команды"
-            ), 0.03)
-        end)
-        showNotification("Телепорт к " .. selectedPlayer.Name)
+    local target=waitChar(selectedPlayer)
+    if target and target:FindFirstChild("HumanoidRootPart") then
+        char.HumanoidRootPart.CFrame=target.HumanoidRootPart.CFrame
+        infoLabel.Text=string.format(
+            "%s\n@%s\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: Да\n\nТелепорт успешен!",
+            selectedPlayer.DisplayName,selectedPlayer.Name,selectedPlayer.UserId,
+            selectedPlayer.AccountAge>0 and os.date("%d.%m.%Y",os.time()-selectedPlayer.AccountAge*86400)or"Неизвестно",
+            selectedPlayer.Team and selectedPlayer.Team.Name or "Без команды"
+        )
+        showNotification("Телепорт к "..selectedPlayer.Name)
     else
-        task.spawn(function()
-            typeText(playerInfo, string.format(
-                "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: Нет\n\n<font color='#ff5555'>Ошибка: Персонаж не загружен!</font>",
-                isMobile and 8 or 14, selectedPlayer.DisplayName, selectedPlayer.Name, selectedPlayer.UserId,
-                selectedPlayer.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - selectedPlayer.AccountAge * 86400) or "Неизвестно",
-                selectedPlayer.Team and selectedPlayer.Team.Name or "Без команды"
-            ), 0.03)
-        end)
+        infoLabel.Text="Ошибка: Персонаж игрока не загружен!"
         showNotification("Ошибка: Персонаж игрока не загружен!")
-        warn("Teleport failed: No valid character for " .. selectedPlayer.Name)
     end
 end)
-teleportButton.MouseEnter:Connect(function()
-    TweenService:Create(teleportButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(90, 40, 110)}):Play()
-end)
-teleportButton.MouseLeave:Connect(function()
-    TweenService:Create(teleportButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 30, 90)}):Play()
-end)
 
--- Theme toggle
-local themeToggle = Instance.new("TextButton", contentFrames[1])
-themeToggle.Size = UDim2.new(0, isMobile and 60 or 90, 0, isMobile and 24 or 30)
-themeToggle.Position = UDim2.new(0.5, -(isMobile and 30 or 45), 1, -(isMobile and 28 or 36))
-themeToggle.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-themeToggle.TextColor3 = Color3.fromRGB(190, 140, 245)
-themeToggle.Text = ""
-themeToggle.Font = Enum.Font.SourceSansSemibold
-themeToggle.TextSize = isMobile and 7 or 12
-themeToggle.TextWrapped = true
-themeToggle.ZIndex = 2
-Instance.new("UICorner", themeToggle).CornerRadius = UDim.new(0, 6)
-task.spawn(function() typeText(themeToggle, "Светлая Тема", 0.05) end)
-
-local isDark = true
-themeToggle.MouseButton1Click:Connect(function()
-    isDark = not isDark
-    local newMainColor = isDark and Color3.fromRGB(25, 15, 35) or Color3.fromRGB(200, 200, 200)
-    local newContentColor = isDark and Color3.fromRGB(35, 25, 45) or Color3.fromRGB(180, 180, 180)
-    local newTextColor = isDark and Color3.fromRGB(190, 140, 245) or Color3.fromRGB(30, 30, 30)
-    TweenService:Create(mainFrame, TweenInfo.new(0.3), {BackgroundColor3 = newMainColor}):Play()
-    TweenService:Create(sidebar, TweenInfo.new(0.3), {BackgroundColor3 = isDark and Color3.fromRGB(30, 20, 40) or Color3.fromRGB(220, 220, 220)}):Play()
-    TweenService:Create(headerFrame, TweenInfo.new(0.3), {BackgroundColor3 = isDark and Color3.fromRGB(30, 20, 40) or Color3.fromRGB(220, 220, 220)}):Play()
-    for _, frame in ipairs(contentFrames) do
-        TweenService:Create(frame, TweenInfo.new(0.3), {BackgroundColor3 = newContentColor}):Play()
-    end
-    for _, btn in ipairs(buttons) do
-        TweenService:Create(btn, TweenInfo.new(0.2), {TextColor3 = newTextColor}):Play()
-    end
-    task.spawn(function() typeText(themeToggle, isDark and "Светлая Тема" or "Тёмная Тема", 0.05) end)
-    headerLabel.TextColor3 = newTextColor
-end)
-
--- Update player list
 local function updatePlayerList()
-    local previousSelectedPlayerName = selectedPlayerName
-    selectedPlayer = nil
-    selectedPlayerName = nil
-    teleportButton.Visible = false
-    task.spawn(function() typeText(playerInfo, "Выберите игрока.", 0.05) end)
-    avatarImage.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
-    for _, child in ipairs(playerListScroll:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
-    end
-    for i, player in ipairs(Players:GetPlayers()) do
-        local playerButton = Instance.new("TextButton", playerListScroll)
-        playerButton.Size = UDim2.new(1, -4, 0, isMobile and 24 or 32)
-        playerButton.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-        playerButton.TextColor3 = Color3.fromRGB(190, 140, 245)
-        playerButton.Text = ""
-        playerButton.Font = Enum.Font.SourceSansSemibold
-        playerButton.TextSize = isMobile and 7 or 12
-        playerButton.TextWrapped = true
-        playerButton.ZIndex = 2
-        Instance.new("UICorner", playerButton).CornerRadius = UDim.new(0, 5)
-        task.spawn(function() typeText(playerButton, player.Name, 0.05) end)
+    selectedPlayer=nil
+    tpBtn.Visible=false
+    infoLabel.Text="Выберите игрока."
+    avatarImg.Image="rbxasset://textures/ui/GuiImagePlaceholder.png"
+    for _,c in ipairs(plScroll:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+    for _,p in ipairs(Players:GetPlayers()) do
+        local btn=Instance.new("TextButton",plScroll)
+        btn.Size=UDim2.new(1,-8,0,isMobile and 28 or 32)
+        btn.BackgroundColor3=Color3.fromRGB(35,25,45)
+        btn.Text=p.Name
+        btn.TextColor3=Color3.fromRGB(190,140,245)
+        btn.Font=Enum.Font.SourceSansSemibold
+        btn.TextSize=isMobile and 9 or 12
+        btn.ZIndex=2
+        Instance.new("UICorner",btn).CornerRadius=UDim.new(0,5)
 
-        playerButton.MouseButton1Click:Connect(function()
-            selectedPlayer = player
-            selectedPlayerName = player.Name
-            warn("Selected player: " .. player.Name)
-            local userId = player.UserId
-            local creationDate = player.AccountAge > 0 and os.date("%d.%m.%Y", os.time() - player.AccountAge * 86400) or "Неизвестно"
-            local success, thumbnail = pcall(function()
-                return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size48x48 or Enum.ThumbnailSize.Size150x150)
-            end)
-            avatarImage.Image = success and thumbnail or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-            task.spawn(function()
-                typeText(playerInfo, string.format(
-                    "<font size='%d' face='SourceSansBold'>%s</font>\n<font color='#cccccc'>@%s</font>\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: %s",
-                    isMobile and 8 or 14, player.DisplayName, player.Name, userId, creationDate,
-                    player.Team and player.Team.Name or "Без команды",
-                    player.Character and player.Character:FindFirstChild("HumanoidRootPart") and "Да" or "Нет"
-                ), 0.03)
-            end)
-            teleportButton.Visible = true
+        btn.MouseButton1Click:Connect(function()
+            selectedPlayer=p
+            local ok,thumb=pcall(Players.GetUserThumbnailAsync,Players,p.UserId,Enum.ThumbnailType.HeadShot,isMobile and Enum.ThumbnailSize.Size48x48 or Enum.ThumbnailSize.Size150x150)
+            avatarImg.Image=ok and thumb or "rbxasset://textures/ui/GuiImagePlaceholder.png"
+            infoLabel.Text=string.format(
+                "%s\n@%s\n\nUserID: %d\nСоздан: %s\nКоманда: %s\nВ игре: %s",
+                p.DisplayName,p.Name,p.UserId,
+                p.AccountAge>0 and os.date("%d.%m.%Y",os.time()-p.AccountAge*86400)or"Неизвестно",
+                p.Team and p.Team.Name or "Без команды",
+                p.Character and p.Character:FindFirstChild("HumanoidRootPart")and"Да"or"Нет"
+            )
+            tpBtn.Visible=true
         end)
-        playerButton.MouseEnter:Connect(function()
-            TweenService:Create(playerButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play()
-        end)
-        playerButton.MouseLeave:Connect(function()
-            TweenService:Create(playerButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play()
-        end)
-        if previousSelectedPlayerName and player.Name == previousSelectedPlayerName then
-            playerButton:InputBegan({UserInputType = Enum.UserInputType.MouseButton1})
-        end
+
+        btn.MouseEnter:Connect(function() TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(45,35,55)}):Play() end)
+        btn.MouseLeave:Connect(function() TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,25,45)}):Play() end)
     end
-    playerListScroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * (isMobile and 26 or 35))
+    plScroll.CanvasSize=UDim2.new(0,0,0,#Players:GetPlayers()*(isMobile and 31 or 36))
 end
-if buttons[4] then buttons[4].MouseButton1Click:Connect(updatePlayerList) end
+if tabButtons[4] then tabButtons[4].MouseButton1Click:Connect(updatePlayerList) end
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
--- Toggle button
-local toggleButton = Instance.new("TextButton", screenGui)
-toggleButton.Size = UDim2.new(0, isMobile and 48 or 70, 0, isMobile and 48 or 70)
-toggleButton.Position = UDim2.new(0, 8, 0.5, -(isMobile and 24 or 35))
-toggleButton.BackgroundTransparency = 1
-toggleButton.Text = ""
-toggleButton.ZIndex = 10
-toggleButton.Active = true
-local toggleGradient = Instance.new("UIGradient", toggleButton)
-toggleGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 30, 90)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(90, 40, 110)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 30, 90))
-})
-toggleGradient.Rotation = 45
-local toggleButtonImage = Instance.new("ImageLabel", toggleButton)
-toggleButtonImage.Size = UDim2.new(1, -2, 1, -2)
-toggleButtonImage.Position = UDim2.new(0, 1, 0, 1)
-toggleButtonImage.BackgroundTransparency = 1
-toggleButtonImage.Image = "rbxassetid://71196235690019" or "rbxasset://textures/ui/GuiImagePlaceholder.png"
-toggleButtonImage.ScaleType = Enum.ScaleType.Fit
-Instance.new("UICorner", toggleButton).CornerRadius = UDim.new(1, 0)
-Instance.new("UICorner", toggleButtonImage).CornerRadius = UDim.new(1, 0)
-local toggleStroke = Instance.new("UIStroke", toggleButton)
-toggleStroke.Thickness = 1.5
-toggleStroke.Color = Color3.fromRGB(90, 40, 110)
+-- 5 вкладка: ther hubs
+local otherHubsScroll=Instance.new("ScrollingFrame",tabFrames[5])
+otherHubsScroll.Size=UDim2.new(1,-16,1,-16)
+otherHubsScroll.Position=UDim2.new(0,8,0,8)
+otherHubsScroll.BackgroundTransparency=1
+otherHubsScroll.ScrollBarThickness=isMobile and 4 or 5
+otherHubsScroll.ScrollBarImageColor3=Color3.fromRGB(70,30,90)
+otherHubsScroll.ZIndex=2
+otherHubsScroll.ClipsDescendants=true
+local ohLayout=Instance.new("UIListLayout",otherHubsScroll)
+ohLayout.Padding=UDim.new(0,isMobile and 10 or 12)
+ohLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
+
+local otherHubs={
+    {"jg hub",function() loadstring(game:HttpGet("https://raw.githubusercontent.com/joygril/Brookhaven-RP-JG-Hub/refs/heads/main/Jeon-The-Best.txt"))() end},
+    {"VR7",function() loadstring(game:HttpGet("https://raw.githubusercontent.com/VR7ss/OMK/refs/heads/main/VR7-ON-TOP"))() end},
+    {"Dex Explorer",function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))() end}
+}
+for _,d in ipairs(otherHubs) do
+    local btn=Instance.new("TextButton",otherHubsScroll)
+    btn.Size=UDim2.new(1,-16,0,isMobile and 44 or 50)
+    btn.BackgroundColor3=Color3.fromRGB(35,25,45)
+    btn.TextColor3=Color3.fromRGB(190,140,245)
+    btn.Text=d[1]
+    btn.Font=Enum.Font.SourceSansSemibold
+    btn.TextSize=isMobile and 12 or 16
+    btn.ZIndex=2
+    Instance.new("UICorner",btn).CornerRadius=UDim.new(0,8)
+    local bStroke=Instance.new("UIStroke",btn)
+    bStroke.Thickness=1.5
+    bStroke.Color=Color3.fromRGB(70,30,90)
+
+    btn.MouseButton1Click:Connect(function()
+        local success=pcall(d[2])
+        showNotification(success and (d[1].." запущен!") or ("Ошибка: "..d[1]))
+    end)
+
+    btn.MouseEnter:Connect(function() TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(45,35,55)}):Play() end)
+    btn.MouseLeave:Connect(function() TweenService:Create(btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,25,45)}):Play() end)
+end
+otherHubsScroll.CanvasSize=UDim2.new(0,0,0,#otherHubs*(isMobile and 54 or 62))
+
+-- Тоггл
+local toggle=Instance.new("TextButton",screenGui)
+toggle.Size=UDim2.new(0,isMobile and 54 or 70,0,isMobile and 54 or 70)
+toggle.Position=UDim2.new(0,isMobile and 12 or 16,0.5,-(isMobile and 27 or 35))
+toggle.BackgroundTransparency=1
+toggle.ZIndex=10
+toggle.Active=true
+
+local tgGrad=Instance.new("UIGradient",toggle)
+tgGrad.Color=ColorSequence.new{
+    ColorSequenceKeypoint.new(0,Color3.fromRGB(70,30,90)),
+    ColorSequenceKeypoint.new(0.5,Color3.fromRGB(90,40,110)),
+    ColorSequenceKeypoint.new(1,Color3.fromRGB(70,30,90))
+}
+tgGrad.Rotation=45
 task.spawn(function()
     while true do
-        TweenService:Create(toggleGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 405}):Play()
+        TweenService:Create(tgGrad,TweenInfo.new(3,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut),{Rotation=405}):Play()
         task.wait(3)
-        TweenService:Create(toggleGradient, TweenInfo.new(3, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Rotation = 45}):Play()
+        TweenService:Create(tgGrad,TweenInfo.new(3,Enum.EasingStyle.Sine,Enum.EasingDirection.InOut),{Rotation=45}):Play()
         task.wait(3)
     end
 end)
 
-toggleButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, isMobile and 44 or 65, 0, isMobile and 44 or 65)}):Play()
-    end
-end)
-toggleButton.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        TweenService:Create(toggleButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, isMobile and 48 or 70, 0, isMobile and 48 or 70)}):Play()
-    end
-end)
+local tgImg=Instance.new("ImageLabel",toggle)
+tgImg.Size=UDim2.new(1,-2,1,-2)
+tgImg.Position=UDim2.new(0,1,0,1)
+tgImg.BackgroundTransparency=1
+tgImg.Image="rbxassetid://71196235690019"
+tgImg.ScaleType=Enum.ScaleType.Fit
+Instance.new("UICorner",toggle).CornerRadius=UDim.new(1,0)
+Instance.new("UICorner",tgImg).CornerRadius=UDim.new(1,0)
+local tgStroke=Instance.new("UIStroke",toggle)
+tgStroke.Thickness=1.5
+tgStroke.Color=Color3.fromRGB(90,40,110)
 
-local btnDragging, btnDragStart, btnStartPos
-toggleButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        btnDragging = true
-        btnDragStart = input.Position
-        btnStartPos = toggleButton.Position
-    end
-end)
-toggleButton.InputChanged:Connect(function(input)
-    if btnDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - btnDragStart
-        toggleButton.Position = UDim2.new(btnStartPos.X.Scale, btnStartPos.X.Offset + delta.X, btnStartPos.Y.Scale, btnStartPos.Y.Offset + delta.Y)
-    end
-end)
-toggleButton.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        btnDragging = false
-    end
-end)
+local drag,dStart,dPos
+toggle.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=true dStart=i.Position dPos=toggle.Position end end)
+toggle.InputChanged:Connect(function(i) if drag and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then local delta=i.Position-dStart toggle.Position=UDim2.new(dPos.X.Scale,dPos.X.Offset+delta.X,dPos.Y.Scale,dPos.Y.Offset+delta.Y) end end)
+toggle.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drag=false end end)
 
--- Notification frame
-local notificationFrame = Instance.new("Frame", screenGui)
-notificationFrame.Size = UDim2.new(0, isMobile and 140 or 260, 0, isMobile and 30 or 40)
-notificationFrame.Position = UDim2.new(0.5, 0, 1, isMobile and -40 or -60)
-notificationFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
-notificationFrame.BackgroundTransparency = 0.2
-notificationFrame.Visible = false
-notificationFrame.ZIndex = 5
-notificationFrame.Name = "NotificationFrame"
-Instance.new("UICorner", notificationFrame).CornerRadius = UDim.new(0, 8)
-local notificationStroke = Instance.new("UIStroke", notificationFrame)
-notificationStroke.Thickness = 1
-notificationStroke.Color = Color3.fromRGB(70, 30, 90)
+-- Уведомление
+local notif=Instance.new("Frame",screenGui)
+notif.Size=UDim2.new(0,isMobile and 160 or 260,0,isMobile and 34 or 40)
+notif.Position=UDim2.new(0.5,0,1,isMobile and -60 or -80)
+notif.BackgroundColor3=Color3.fromRGB(35,25,45)
+notif.BackgroundTransparency=0.2
+notif.Visible=false
+notif.ZIndex=5
+notif.Name="NotificationFrame"
+Instance.new("UICorner",notif).CornerRadius=UDim.new(0,8)
+local nStroke=Instance.new("UIStroke",notif)
+nStroke.Thickness=1
+nStroke.Color=Color3.fromRGB(70,30,90)
+local nLabel=Instance.new("TextLabel",notif)
+nLabel.Size=UDim2.new(1,-4,1,-4)
+nLabel.Position=UDim2.new(0,2,0,2)
+nLabel.BackgroundTransparency=1
+nLabel.Text="Скрипт активирован!"
+nLabel.TextColor3=Color3.fromRGB(190,140,245)
+nLabel.Font=Enum.Font.SourceSansSemibold
+nLabel.TextSize=isMobile and 9 or 14
+nLabel.TextXAlignment=Enum.TextXAlignment.Center
+nLabel.TextYAlignment=Enum.TextYAlignment.Center
+nLabel.ZIndex=5
+nLabel.Name="NotificationLabel"
 
-local notificationLabel = Instance.new("TextLabel", notificationFrame)
-notificationLabel.Size = UDim2.new(1, -4, 1, -4)
-notificationLabel.Position = UDim2.new(0, 2, 0, 2)
-notificationLabel.BackgroundTransparency = 1
-notificationLabel.Text = ""
-notificationLabel.TextColor3 = Color3.fromRGB(190, 140, 245)
-notificationLabel.Font = Enum.Font.SourceSansSemibold
-notificationLabel.TextSize = isMobile and 8 or 14
-notificationLabel.TextWrapped = true
-notificationLabel.TextXAlignment = Enum.TextXAlignment.Center
-notificationLabel.TextYAlignment = Enum.TextYAlignment.Center
-notificationLabel.ZIndex = 5
-notificationLabel.Name = "NotificationLabel"
-task.spawn(function() typeText(notificationLabel, "Скрипт активирован!", 0.05) end)
+-- Анимации
+local openTween=TweenService:Create(main,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Position=UDim2.new(0.5,-mainSize.X.Offset/2,0.5,-mainSize.Y.Offset/2)})
+local closeTween=TweenService:Create(main,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{Position=UDim2.new(0.5,-mainSize.X.Offset/2,1.5,0)})
+local blurIn=TweenService:Create(blur,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=12})
+local blurOut=TweenService:Create(blur,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{Size=0})
 
--- Toggle main frame
-local isOpen, isFirstLaunch = false, true
-local openTween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
-local closeTween = TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 1.5, 0)})
-local blurTweenIn = TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = 12})
-local blurTweenOut = TweenService:Create(blurEffect, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = 0})
-
-local function playFirstLaunchAnimation()
-    local startSound = createSound("9120386446")
-    if startSound then startSound:Play() end
-    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {
-        Text = "z0nxx Hub - Enhanced Edition",
-        Color = Color3.fromRGB(190, 140, 245),
-        Font = Enum.Font.SourceSansBold,
-        TextSize = isMobile and 14 or 18
-    })
-    mainFrame.Visible = true
-    blurEffect.Enabled = true
-    blurTweenIn:Play()
-    mainFrame.Size = isMobile and UDim2.new(0, 24, 0, 24) or UDim2.new(0, 60, 0, 60)
-    mainFrame.Position = UDim2.new(0.5, -mainFrame.Size.X.Offset / 2, 0.5, -mainFrame.Size.Y.Offset / 2)
-    local launchTween = TweenService:Create(mainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = mainFrameSize, Position = UDim2.new(0.5, -mainFrameSize.X.Offset / 2, 0.5, -mainFrameSize.Y.Offset / 2)})
-    launchTween:Play()
-    launchTween.Completed:Wait()
-    isFirstLaunch = false
-    isOpen = true
+local isOpen,first=false,true
+local function launchAnim()
+    game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage",{Text="z0nxx Hub - Enhanced Edition",Color=Color3.fromRGB(190,140,245),Font=Enum.Font.SourceSansBold,TextSize=isMobile and 16 or 18})
+    main.Visible=true
+    blur.Enabled=true
+    blurIn:Play()
+    main.Size=isMobile and UDim2.new(0,30,0,30) or UDim2.new(0,60,0,60)
+    main.Position=UDim2.new(0.5,-main.Size.X.Offset/2,0.5,-main.Size.Y.Offset/2)
+    local t=TweenService:Create(main,TweenInfo.new(0.4,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=mainSize,Position=UDim2.new(0.5,-mainSize.X.Offset/2,0.5,-mainSize.Y.Offset/2)})
+    t:Play()
+    t.Completed:Wait()
+    first=false
+    isOpen=true
 end
 
-toggleButton.MouseButton1Click:Connect(function()
-    if isFirstLaunch then
-        playFirstLaunchAnimation()
+toggle.MouseButton1Click:Connect(function()
+    if first then launchAnim()
     elseif isOpen then
         closeTween:Play()
-        blurTweenOut:Play()
+        blurOut:Play()
         closeTween.Completed:Wait()
-        blurEffect.Enabled = false
-        mainFrame.Visible = false
-        isOpen = false
+        blur.Enabled=false
+        main.Visible=false
+        isOpen=false
     else
-        mainFrame.Visible = true
-        blurEffect.Enabled = true
-        blurTweenIn:Play()
-        for _, frame in ipairs(contentFrames) do frame.Visible = (frame == contentFrames[1]) end
-        secretFrame.Visible = false
+        main.Visible=true
+        blur.Enabled=true
+        blurIn:Play()
+        for _,f in ipairs(tabFrames) do f.Visible=(f==tabFrames[1]) end
+        secret.Visible=false
         openTween:Play()
-        isOpen = true
+        isOpen=true
     end
 end)
-toggleButton.MouseEnter:Connect(function()
-    TweenService:Create(toggleStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 50, 120)}):Play()
-end)
-toggleButton.MouseLeave:Connect(function()
-    TweenService:Create(toggleStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(90, 40, 110)}):Play()
+
+avatar.MouseButton1Click:Connect(function()
+    main.Visible=true
+    blur.Enabled=true
+    blurIn:Play()
+    for _,f in ipairs(tabFrames) do f.Visible=false end
+    secret.Visible=true
+    for _,b in ipairs(tabButtons) do TweenService:Create(b,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(35,25,45)}):Play() end
+    openTween:Play()
+    showNotification("Пасхалка найдена!")
 end)
 
--- Add click sounds
-local function addClickSound(button)
-    local clickSound = createSound("9120386446")
-    if clickSound then button.MouseButton1Click:Connect(function() clickSound:Play() end) end
-end
-addClickSound(closeButton)
-addClickSound(themeToggle)
-addClickSound(teleportButton)
-addClickSound(avatarCircle)
-for _, btn in ipairs(buttons) do addClickSound(btn) end
-for _, btn in ipairs(feScripts) do
-    local feButton = feScrollFrame:FindFirstChild(btn[1])
-    if feButton then addClickSound(feButton) end
-end
-for i = 1, 4 do
-    local teleportBtn = teleportFrame:GetChildren()[i]
-    if teleportBtn and teleportBtn:IsA("TextButton") then addClickSound(teleportBtn) end
-end
+closeBtn.MouseButton1Click:Connect(function()
+    closeTween:Play()
+    blurOut:Play()
+    closeTween.Completed:Wait()
+    blur.Enabled=false
+    main.Visible=false
+end)
 
--- Chat commands
-if LocalPlayer then
-    LocalPlayer.Chatted:Connect(function(msg)
-        if msg == "!fly" then
-            if loadScript("https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua") then
-                showNotification("Fly активирован!")
-            else
-                showNotification("Ошибка активации Fly")
-            end
-        elseif msg == "!r6" then
-            if loadScript("https://raw.githubusercontent.com/Imagnir/r6_anims_for_r15/main/r6_anims.lua") then
-                showNotification("R6 активирован!")
-            else
-                showNotification("Ошибка активации R6")
-            end
-        end
+local dragging,dIn,dStart,dPos
+header.InputBegan:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+        dragging=true
+        dStart=i.Position
+        dPos=main.Position
+    end
+end)
+header.InputChanged:Connect(function(i)
+    if dragging and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then
+        local delta=i.Position-dStart
+        main.Position=UDim2.new(dPos.X.Scale,dPos.X.Offset+delta.X,dPos.Y.Scale,dPos.Y.Offset+delta.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dragging=false end
+end)
+
+-- Автозапуск adminka
+task.spawn(function()
+    task.wait(1)
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/z0nxx/adminka-/refs/heads/main/adminka.lua"))()
+        showNotification("adminka запущена!")
     end)
-end
+end)
 
--- Initialize
 task.spawn(function()
     task.wait(2)
-    playFirstLaunchAnimation()
-    warn("z0nxx Hub loaded successfully")
+    launchAnim()
 end)
