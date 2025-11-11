@@ -1,3 +1,5 @@
+-- z0nxx Hub - Enhanced Edition с Shift Lock
+
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -9,7 +11,6 @@ local cam = workspace.CurrentCamera
 local screenSize = cam.ViewportSize
 local baseWidth = isMobile and math.min(screenSize.X * 0.94, 420) or 800
 local baseHeight = isMobile and math.min(screenSize.Y * 0.86, 680) or 500
-
 local mainSize = UDim2.new(0, baseWidth, 0, baseHeight)
 local headerHeight = isMobile and 48 or 60
 local sidebarWidth = isMobile and 72 or 80
@@ -104,6 +105,7 @@ title.Font = Enum.Font.SourceSansBold
 title.TextSize = isMobile and 16 or 20
 title.TextXAlignment = Enum.TextXAlignment.Center
 title.ZIndex = 3
+
 local grad = Instance.new("UIGradient", title)
 grad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(190, 140, 245)),
@@ -177,13 +179,10 @@ sLabel.Size = UDim2.new(1, -padding*2, 1, -padding*2)
 sLabel.Position = UDim2.new(0, padding, 0, padding)
 sLabel.BackgroundTransparency = 1
 sLabel.Text = [[Поздравляем!
-
 Ты нашёл пасхалку!
 Это секретная вкладка z0nxx Hub!
-
 Присоединяйся к Telegram:
 https://t.me/z0nxxHUB
-
 • Получай обновления
 • Участвуй в розыгрышах
 • Стань частью комьюнити!]]
@@ -212,7 +211,6 @@ for i, name in ipairs(tabs) do
     local bStroke = Instance.new("UIStroke", btn)
     bStroke.Thickness = 1
     bStroke.Color = Color3.fromRGB(70, 30, 90)
-
     local frame = Instance.new("Frame", content)
     frame.Size = UDim2.new(1, -padding*2, 1, -padding*2)
     frame.Position = UDim2.new(0, padding, 0, padding)
@@ -220,10 +218,8 @@ for i, name in ipairs(tabs) do
     frame.Visible = i == 1
     frame.ClipsDescendants = true
     frame.ZIndex = 2
-
     table.insert(tabButtons, btn)
     table.insert(tabFrames, frame)
-
     btn.MouseButton1Click:Connect(function()
         for j, f in ipairs(tabFrames) do f.Visible = (j == i) end
         secret.Visible = false
@@ -254,7 +250,6 @@ for i, name in ipairs(tabs) do
             updatePlayerList()
         end
     end)
-
     btn.MouseEnter:Connect(function()
         if not tabFrames[i].Visible then
             TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play()
@@ -283,6 +278,7 @@ local creatorData = {
     {UserId=2316299341, Name="z0nxx", Title="Создатель", Info="• Опыт: 3 года\n• Создан: 23.03.2025\n• Версия: 2.0", Contact="• Discord: z0nxx\n• Roblox: z0nxx", Description="Главный разработчик!"},
     {UserId=4254815427, Name="Lil_darkie", Title="Тестировщик", Info="• Роль: Тестирование", Contact="Помог с мобильной версией.", Description="Спасибо за помощь!"}
 }
+
 for _, d in ipairs(creatorData) do
     local card = Instance.new("Frame", creatorScroll)
     card.Size = UDim2.new(1, -padding*2, 0, isMobile and 180 or 280)
@@ -293,7 +289,6 @@ for _, d in ipairs(creatorData) do
     local cStroke = Instance.new("UIStroke", card)
     cStroke.Thickness = 1
     cStroke.Color = Color3.fromRGB(70, 30, 90)
-
     local av = Instance.new("ImageLabel", card)
     av.Size = isMobile and UDim2.new(0, 58, 0, 58) or UDim2.new(0, 100, 0, 100)
     av.Position = UDim2.new(0, isMobile and 12 or 14, 0, isMobile and 12 or 14)
@@ -305,7 +300,6 @@ for _, d in ipairs(creatorData) do
     local avStroke = Instance.new("UIStroke", av)
     avStroke.Thickness = 1
     avStroke.Color = Color3.fromRGB(70, 30, 90)
-
     local info = Instance.new("TextLabel", card)
     info.Size = isMobile and UDim2.new(1, -74, 0, 150) or UDim2.new(1, -120, 0, 260)
     info.Position = isMobile and UDim2.new(0, 74, 0, 12) or UDim2.new(0, 120, 0, 14)
@@ -347,6 +341,7 @@ grid.SortOrder = Enum.SortOrder.LayoutOrder
 grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 grid.StartCorner = Enum.StartCorner.TopLeft
 
+-- Добавлена кнопка Shift Lock
 local feScripts = {
     {"Fly (PC)","https://raw.githubusercontent.com/z0nxx/fly-by-z0nxx/refs/heads/main/fly.lua"},
     {"R4D","https://raw.githubusercontent.com/M1ZZ001/BrookhavenR4D/main/Brookhaven%20R4D%20Script"},
@@ -368,7 +363,8 @@ local feScripts = {
     {"HOUSEunbanned","https://raw.githubusercontent.com/z0nxx/UNBANEHOUSE/refs/heads/main/houseUnbane.lua"},
     {"Fake IP Grabber","https://pastebin.com/raw/aziWwaw2"},
     {"Universal Emotes","https://raw.githubusercontent.com/Eazvy/public-scripts/main/Universal_Animations_Emotes.lua"},
-    {"Dance Hub","https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"}
+    {"Dance Hub","https://raw.githubusercontent.com/z0nxx/dance-script/refs/heads/main/dance.lua"},
+    {"Shift Lock", "https://raw.githubusercontent.com/z0nxx/shift-lock/refs/heads/main/shiftlock.lua"} -- НОВАЯ КНОПКА
 }
 
 for i, d in ipairs(feScripts) do
@@ -385,10 +381,16 @@ for i, d in ipairs(feScripts) do
     local bStroke = Instance.new("UIStroke", btn)
     bStroke.Thickness = 1.5
     bStroke.Color = Color3.fromRGB(70, 30, 90)
-
     btn.MouseButton1Click:Connect(function()
-        local success = loadScript(d[2])
-        showNotification(success and (d[1].." запущен!") or ("Ошибка: "..d[1]))
+        if d[1] == "Shift Lock" then
+            local success = pcall(function()
+                loadstring(game:HttpGet(d[2]))()
+            end)
+            showNotification(success and "Shift Lock включён!" or "Ошибка: Shift Lock")
+        else
+            local success = loadScript(d[2])
+            showNotification(success and (d[1].." запущен!") or ("Ошибка: "..d[1]))
+        end
     end)
     btn.MouseEnter:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play()
@@ -417,6 +419,7 @@ local locations = {
     {Name="База",Position=Vector3.new(-81.5,17.48,-124.39)},
     {Name="AFK Зона",Position=Vector3.new(333.55,89.6,107.74),Angle=CFrame.Angles(0,math.pi,0)}
 }
+
 for i=1,5 do
     local btn = Instance.new("TextButton", tpScroll)
     btn.Size = UDim2.new(1, -16, 0, isMobile and 32 or 36)
@@ -430,7 +433,6 @@ for i=1,5 do
     local bStroke = Instance.new("UIStroke", btn)
     bStroke.Thickness = 1
     bStroke.Color = Color3.fromRGB(70, 30, 90)
-
     btn.MouseButton1Click:Connect(function()
         local char = LocalPlayer.Character
         if not (char and char:FindFirstChild("HumanoidRootPart")) then showNotification("Ошибка: Персонаж не загружен!"); return end
@@ -451,7 +453,6 @@ for i=1,5 do
             showNotification("Нет сохранённых точек!")
         end
     end)
-
     btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play() end)
     btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play() end)
 end
@@ -465,7 +466,6 @@ playerList.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 playerList.BackgroundTransparency = 0.2
 playerList.ZIndex = 2
 Instance.new("UICorner", playerList).CornerRadius = UDim.new(0, 8)
-
 local plTitle = Instance.new("TextLabel", playerList)
 plTitle.Size = UDim2.new(1, 0, 0, isMobile and 28 or 32)
 plTitle.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
@@ -475,7 +475,6 @@ plTitle.Font = Enum.Font.SourceSansBold
 plTitle.TextSize = isMobile and 10 or 14
 plTitle.ZIndex = 2
 Instance.new("UICorner", plTitle).CornerRadius = UDim.new(0, 8)
-
 local plScroll = Instance.new("ScrollingFrame", playerList)
 plScroll.Size = UDim2.new(1, 0, 1, isMobile and -32 or -40)
 plScroll.Position = UDim2.new(0, 0, 0, isMobile and 28 or 32)
@@ -494,7 +493,6 @@ infoFrame.BackgroundColor3 = Color3.fromRGB(35, 25, 45)
 infoFrame.BackgroundTransparency = 0.2
 infoFrame.ZIndex = 2
 Instance.new("UICorner", infoFrame).CornerRadius = UDim.new(0, 8)
-
 local avatarImg = Instance.new("ImageLabel", infoFrame)
 avatarImg.Size = isMobile and UDim2.new(0, 48, 0, 48) or UDim2.new(0, 100, 0, 100)
 avatarImg.Position = UDim2.new(0.5, -(isMobile and 24 or 50), 0, isMobile and 10 or 12)
@@ -505,7 +503,6 @@ Instance.new("UICorner", avatarImg).CornerRadius = UDim.new(0, 8)
 local avStroke = Instance.new("UIStroke", avatarImg)
 avStroke.Thickness = 1
 avStroke.Color = Color3.fromRGB(70, 30, 90)
-
 local infoLabel = Instance.new("TextLabel", infoFrame)
 infoLabel.Size = isMobile and UDim2.new(1, -12, 0, 80) or UDim2.new(1, -16, 0, 140)
 infoLabel.Position = isMobile and UDim2.new(0, 6, 0, 60) or UDim2.new(0, 8, 0, 120)
@@ -578,7 +575,6 @@ local function updatePlayerList()
         btn.TextSize = isMobile and 9 or 12
         btn.ZIndex = 2
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
-
         btn.MouseButton1Click:Connect(function()
             selectedPlayer = p
             local ok, thumb = pcall(Players.GetUserThumbnailAsync, Players, p.UserId, Enum.ThumbnailType.HeadShot, isMobile and Enum.ThumbnailSize.Size48x48 or Enum.ThumbnailSize.Size150x150)
@@ -592,12 +588,12 @@ local function updatePlayerList()
             )
             tpBtn.Visible = true
         end)
-
         btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play() end)
         btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play() end)
     end
     plScroll.CanvasSize = UDim2.new(0, 0, 0, #Players:GetPlayers() * (isMobile and 31 or 36))
 end
+
 if tabButtons[4] then tabButtons[4].MouseButton1Click:Connect(updatePlayerList) end
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
@@ -620,6 +616,7 @@ local otherHubs = {
     {"VR7", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/VR7ss/OMK/refs/heads/main/VR7-ON-TOP"))() end},
     {"Dex Explorer", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))() end}
 }
+
 for _, d in ipairs(otherHubs) do
     local btn = Instance.new("TextButton", otherHubsScroll)
     btn.Size = UDim2.new(1, -16, 0, isMobile and 44 or 50)
@@ -633,12 +630,10 @@ for _, d in ipairs(otherHubs) do
     local bStroke = Instance.new("UIStroke", btn)
     bStroke.Thickness = 1.5
     bStroke.Color = Color3.fromRGB(70, 30, 90)
-
     btn.MouseButton1Click:Connect(function()
         local success = pcall(d[2])
         showNotification(success and (d[1].." запущен!") or ("Ошибка: "..d[1]))
     end)
-
     btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 35, 55)}):Play() end)
     btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 25, 45)}):Play() end)
 end
@@ -651,7 +646,6 @@ toggle.Position = UDim2.new(0, isMobile and 14 or 16, 0.5, -(isMobile and 29 or 
 toggle.BackgroundTransparency = 1
 toggle.ZIndex = 10
 toggle.Active = true
-
 local tgGrad = Instance.new("UIGradient", toggle)
 tgGrad.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 30, 90)),
@@ -667,7 +661,6 @@ task.spawn(function()
         task.wait(3)
     end
 end)
-
 local tgImg = Instance.new("ImageLabel", toggle)
 tgImg.Size = UDim2.new(1, -2, 1, -2)
 tgImg.Position = UDim2.new(0, 1, 0, 1)
@@ -716,8 +709,8 @@ local openTween = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.
 local closeTween = TweenService:Create(main, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Position = UDim2.new(0.5, -mainSize.X.Offset/2, 1.5, 0)})
 local blurIn = TweenService:Create(blur, TweenInfo.new(0.3), {Size = 12})
 local blurOut = TweenService:Create(blur, TweenInfo.new(0.3), {Size = 0})
-
 local isOpen, first = false, true
+
 local function launchAnim()
     game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", {Text="z0nxx Hub - Enhanced Edition", Color=Color3.fromRGB(190, 140, 245), Font=Enum.Font.SourceSansBold, TextSize=isMobile and 16 or 18})
     main.Visible = true
@@ -798,7 +791,6 @@ task.spawn(function()
         showNotification("adminka запущена!")
     end)
 end)
-
 task.spawn(function()
     task.wait(2)
     launchAnim()
